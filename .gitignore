@@ -1,0 +1,12 @@
+firmware/.pio/
+firmware/.vscode/
+
+eda/*.bak
+eda/*-bak
+eda/*-backups/
+eda/*.kicad_prl
+eda/*.kicad_pcb-bak
+eda/*.kicad_sch-bak
+eda/*~
+eda/_autosave-*
+eda/fp-info-cache
