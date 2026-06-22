@@ -53,10 +53,10 @@ setpoint = 100.0
 Kp = 1.0
 Ki = 1.0
 Kd = 0.05
-amp = 1000.0
+amp = 2000.0
 offset = 2000.0
-period = 5.0
-wave_type = "sine"
+period = 10.0
+wave_type = "square"
 
 t0 = time.time()
 wave_t = 0.0
