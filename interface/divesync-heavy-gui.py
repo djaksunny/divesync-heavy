@@ -23,7 +23,7 @@ def auto_connect():
 
     for p in ports:
         try:
-            s = serial.Serial(p.device, 115200, timeout=1.0) # Increased timeout slightly for handshakes
+            s = serial.Serial(p.device, 115200, timeout=1.0)
             time.sleep(1)  # Allow device to reboot if needed
             return s
         except:
@@ -46,6 +46,7 @@ data_lock = threading.Lock()
 
 # Shared variables (Protected by data_lock)
 adc = 0.0
+depth = 0.0
 pwm = 0
 setpoint = 100.0
 
@@ -88,7 +89,7 @@ def waveform(dt):
 # Background Control Loop (STRICT HANDSHAKE)
 # -------------------------
 def control_loop():
-    global adc, pwm, setpoint
+    global adc, depth, pwm, setpoint
 
     # 1. Give Arduino 2 seconds to finish its bootloader sequence
     time.sleep(2)
@@ -99,7 +100,6 @@ def control_loop():
         ser.reset_output_buffer()
         
         # 3. KICKSTART THE HANDSHAKE
-        # We send an initial command so the Arduino replies with its first ADC reading
         ser.write(b"0\n")
     except Exception as e:
         print(f"Failed to initialize handshake: {e}")
@@ -109,20 +109,30 @@ def control_loop():
         try:
             # 4. Wait for Arduino's reply (Blocking read)
             line = ser.readline().decode(errors="ignore").strip()
+            parts = line.split(",")
 
-            # 5. Parse the handshake response
-            if line.startswith("I:"):
+            if len(parts) == 2:
                 try:
-                    with data_lock:
-                        adc = float(line[2:])
-                except ValueError:
-                    pass
+                    pos_str = parts[0].strip()
+                    depth_str = parts[1].strip()
 
-            # 6. Time pacing
+                    pos = float(pos_str)
+                    dep = float(depth_str)
+
+                    with data_lock:
+                        adc = pos
+                        depth = dep
+
+                except Exception as e:
+                    print(f"Parse error: '{line}' -> {e}")
+            else:
+                print(f"Bad line format: '{line}'")
+
+            # 5. Time pacing
             dt = 0.01
             time.sleep(dt)
 
-            # 7. Calculate next step under lock
+            # 6. Calculate next step under lock
             with data_lock:
                 setpoint = waveform(dt)
                 pid.setpoint = setpoint
@@ -131,7 +141,7 @@ def control_loop():
                 pid.Kd = Kd
                 pwm = int(pid(adc))
 
-            # 8. Send the next command (This prompts the Arduino to send the next 'I:' reading)
+            # 7. Send the next command (Prompts the Arduino for the next loop)
             ser.write(f"{pwm}\n".encode())
 
         except Exception as e:
@@ -147,6 +157,7 @@ root.title("Actuator Control")
 adc_var = tk.StringVar(value="0.0")
 sp_var = tk.StringVar(value="100.0")
 pwm_var = tk.StringVar(value="0")
+depth_var = tk.StringVar(value="0.000")
 
 main = ttk.Frame(root, padding=10)
 main.pack(fill="both", expand=True)
@@ -157,7 +168,7 @@ left.pack(side="left", fill="y", padx=5)
 right = ttk.Frame(main)
 right.pack(side="right", fill="both", expand=True)
 
-# Live Readouts
+# Live Readouts (Sidebar)
 ttk.Label(left, text="--- Live Readings ---", font=('Helvetica', 10, 'bold')).pack(pady=5)
 ttk.Label(left, text="ADC (Current Position):").pack(anchor="w")
 ttk.Label(left, textvariable=adc_var, font=('Helvetica', 12, 'bold')).pack(anchor="w", pady=2)
@@ -167,6 +178,9 @@ ttk.Label(left, textvariable=sp_var, font=('Helvetica', 12, 'bold')).pack(anchor
 
 ttk.Label(left, text="PWM output:").pack(anchor="w")
 ttk.Label(left, textvariable=pwm_var, font=('Helvetica', 12, 'bold')).pack(anchor="w", pady=2)
+
+ttk.Label(left, text="Depth (m):").pack(anchor="w")
+ttk.Label(left, textvariable=depth_var, font=('Helvetica', 14, 'bold'), foreground="darkgreen").pack(anchor="w", pady=2)
 
 # Dynamic Controls Panel
 ttk.Label(left, text="--- Tuning Parameters ---", font=('Helvetica', 10, 'bold')).pack(pady=10)
@@ -223,31 +237,39 @@ combo_wave.bind("<<ComboboxSelected>>", update_parameters)
 # Matplotlib Plots Setup
 # -------------------------
 N = 200
-t_buf, adc_buf, sp_buf, pwm_buf = [], [], [], []
+t_buf, adc_buf, sp_buf, pwm_buf, depth_buf = [], [], [], [], []
 
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 5), sharex=True)
-fig.tight_layout(pad=3.0)
+# Changed to 3 subplots and increased vertical figure height to 7 to make room
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 7), sharex=True)
+fig.tight_layout(pad=2.5)
 
+# Plot 1: Position Tracking
 line_adc, = ax1.plot([], [], label="ADC Actual", color="blue")
 line_sp, = ax1.plot([], [], label="Setpoint", color="red", linestyle="--")
 ax1.set_title("Position Tracking")
 ax1.set_ylabel("Value")
 ax1.legend(loc="upper right")
 ax1.grid(True)
+ax1.set_ylim(0, 4095)  # 12-bit ADC range
 
+# Plot 2: Control Effort
 line_pwm, = ax2.plot([], [], label="PWM Effort", color="orange")
 ax2.set_title("Control Effort")
-ax2.set_xlabel("Time (s)")
 ax2.set_ylabel("PWM Output")
 ax2.legend(loc="upper right")
 ax2.grid(True)
+ax2.set_ylim(-260, 260)
+
+# Plot 3: Depth Profile (New Plot Added Underneath)
+line_depth, = ax3.plot([], [], label="Depth (m)", color="green")
+ax3.set_title("Depth Profile")
+ax3.set_xlabel("Time (s)")
+ax3.set_ylabel("Depth (m)")
+ax3.legend(loc="upper right")
+ax3.grid(True)
 
 canvas = FigureCanvasTkAgg(fig, master=right)
 canvas.get_tk_widget().pack(fill="both", expand=True)
-
-# Adjust axes limits dynamically based on expected range
-ax1.set_ylim(0, 4095)  # 12-bit ADC range
-ax2.set_ylim(-260, 260)
 
 # -------------------------
 # Animation & Tkinter loop
@@ -257,33 +279,46 @@ def animate(_):
         local_adc = adc
         local_sp = setpoint
         local_pwm = pwm
+        local_depth = depth
 
     now = time.time() - t0
 
+    # Append data to buffers for graphing
     t_buf.append(now)
     adc_buf.append(local_adc)
     sp_buf.append(local_sp)
     pwm_buf.append(local_pwm)
+    depth_buf.append(local_depth)
 
     if len(t_buf) > N:
         t_buf.pop(0)
         adc_buf.pop(0)
         sp_buf.pop(0)
         pwm_buf.pop(0)
+        depth_buf.pop(0)
 
+    # Update line data for plots
     line_adc.set_data(t_buf, adc_buf)
     line_sp.set_data(t_buf, sp_buf)
     line_pwm.set_data(t_buf, pwm_buf)
+    line_depth.set_data(t_buf, depth_buf)
 
     if len(t_buf) > 1:
         ax1.set_xlim(t_buf[0], t_buf[-1])
         ax2.set_xlim(t_buf[0], t_buf[-1])
+        ax3.set_xlim(t_buf[0], t_buf[-1])
+        
+        # Auto-scale the Y-axis dynamically for depth since limits depend on your hardware
+        ax3.relim()
+        ax3.autoscale_view(scalex=False, scaley=True)
 
+    # Update sidebar text variables
     adc_var.set(f"{local_adc:.1f}")
     sp_var.set(f"{local_sp:.1f}")
     pwm_var.set(f"{local_pwm}")
+    depth_var.set(f"{local_depth:.3f}")
 
-    return line_adc, line_sp, line_pwm
+    return line_adc, line_sp, line_pwm, line_depth
 
 anim = FuncAnimation(fig, animate, interval=50, blit=False) 
 

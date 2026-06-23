@@ -1,60 +1,86 @@
 #include <Arduino.h>
+#include <Wire.h>
+#include <MS5837.h>
 
-#define ACT_SIG1 4
-#define ACT_SIG2 5
-#define ACT_FB   A0  // Explicitly use A0 for proper analog reading
+// --- SYRINGE SETUP ---
+#define SYG_IN1 4
+#define SYG_IN2 5
+#define SYG_FB  0      // Analog pin for potentiometer feedback
+#define SYG_MAX 4050   // Safe upper limit for actuator
+#define SYG_MIN 50     // Safe lower limit for actuator
 
-#define _pos_th 4050
-#define _neg_th 50
+void actuate(int dir);
 
-// --- LEDC Configuration ---
+// --- I2C SETUP ---
+#define BAR_SDA 19
+#define BAR_SCL 18
+
+// --- PWM SETUP ---
 #define PWM_FREQ 25000 // 25 kHz: Above human hearing to eliminate whine
 #define PWM_RES  8     // 8-bit resolution (0-255) to match Python logic
 #define PWM_CH1  0     // ESP32 Hardware Timer Channel 0
 #define PWM_CH2  1     // ESP32 Hardware Timer Channel 1
-
 volatile int pwm = 0;
 
-void actuate(int dir);
+// --- BAR SETUP ---
+const int FLUID_DENSITY = 997; // kg/m^3, 997 for freshwater
+MS5837 BAR;
 
 void setup() {
-    pinMode(ACT_FB, INPUT);
+    // --- SYRINGE SETUP ---
+    pinMode(SYG_FB, INPUT);
     Serial.begin(115200);
 
-    // 1. Configure the LEDC timers for the high-frequency PWM
     ledcSetup(PWM_CH1, PWM_FREQ, PWM_RES);
     ledcSetup(PWM_CH2, PWM_FREQ, PWM_RES);
 
-    // 2. Attach the timers directly to your DRV8251 motor pins
-    ledcAttachPin(ACT_SIG1, PWM_CH1);
-    ledcAttachPin(ACT_SIG2, PWM_CH2);
+    ledcAttachPin(SYG_IN1, PWM_CH1);
+    ledcAttachPin(SYG_IN2, PWM_CH2);
 
-    // Initialize to stopped
     actuate(0);
+
+    // --- BAR INIT ---
+    Wire.begin(BAR_SDA, BAR_SCL);
+    bool BAR_OK = false;
+
+    do {
+    if (BAR.init()) {
+      BAR.setModel(MS5837::MS5837_02BA);
+      BAR.setFluidDensity(FLUID_DENSITY);
+      Serial.println("DEPTH_SENSOR_OK");
+      BAR_OK = true;
+    } else {
+      Serial.println("DEPTH_SENSOR_FAIL");
+      delay(1000);
+    }
+  } while (BAR_OK == false);
 }
 
 void loop() {
-    // Only execute and send data if Python speaks first
     if (Serial.available() > 0) {
         String input = Serial.readStringUntil('\n');
-        pwm = constrain(input.toInt(), -255, 255);
+
+        int cmd = input.toInt();
+        pwm = constrain(cmd, -255, 255);
 
         actuate(pwm);
 
-        // Handshake response: Send the 'I:' prefix along with the feedback
-        Serial.print("I:");
-        Serial.println(analogRead(ACT_FB));
+        BAR.read();
+
+        Serial.print(analogRead(SYG_FB));
+        Serial.print(",");
+        Serial.println(BAR.depth());
     }
 }
 
 void actuate(int dir) {
-    int _pos_now = analogRead(ACT_FB);
+    int pos = analogRead(SYG_FB);
 
     // Boundary safety limits
-    if (_pos_now >= _pos_th && dir > 0) {
+    if (pos >= SYG_MAX && dir > 0) {
         dir = 0;
     }
-    if (_pos_now <= _neg_th && dir < 0) {
+    if (pos <= SYG_MIN && dir < 0) {
         dir = 0;
     }
 
