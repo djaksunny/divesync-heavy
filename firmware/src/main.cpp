@@ -109,10 +109,6 @@ void setup() {
     } while (DEPTH_SENSOR_REQUIRED);
 
     Serial.println("LOW_LEVEL_DEPTH_ACTUATOR_INTERFACE_READY");
-    Serial.println("Commands:");
-    Serial.println("  U:<value>   -> motor command in [-255,255]");
-    Serial.println("  R           -> return one telemetry line");
-    Serial.println("  S           -> stop actuator");
 }
 
 // =========================
@@ -156,6 +152,10 @@ void processSerial() {
         Serial.print("ACK:U:");
         Serial.println(g_motor_cmd);
         return;
+    }
+
+    if (msg == "RST") {
+        ESP.restart();
     }
 
     Serial.print("ERR:UNKNOWN_CMD:");
