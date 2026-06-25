@@ -1,99 +1,269 @@
+/*
+ * Low-Level Depth Actuator Interface
+ *
+ * Actuator:     DRV8251 H-bridge, LEDC PWM @ 25 kHz (above audible range)
+ * Depth sensor: MS5837-02BA via I2C
+ * Battery:      Resistor divider on BATT_SENSE, read via analogReadMilliVolts()
+ *
+ * Serial commands:
+ *   U:<value>  -> set motor command [-255, 255]
+ *   R          -> send one telemetry line immediately
+ *   S          -> stop actuator (cmd = 0)
+ *
+ * Telemetry CSV (sent every TELEMETRY_PERIOD_MS):
+ *   time_ms, actuator_raw, motor_cmd, depth_m, pressure_mbar, temp_c, depth_ok, battery_v
+ */
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <MS5837.h>
 
-// --- SYRINGE SETUP ---
-#define SYG_IN1 4
-#define SYG_IN2 5
-#define SYG_FB  0      // Analog pin for potentiometer feedback
-#define SYG_MAX 4050   // Safe upper limit for actuator
-#define SYG_MIN 50     // Safe lower limit for actuator
+// =========================
+// Pin definitions
+// =========================
+#define SYG_IN1     4
+#define SYG_IN2     5
+#define SYG_FB      0       // Potentiometer feedback (analog in)
+#define BAR_SDA     19
+#define BAR_SCL     18
+#define BATT_SENSE  3
 
-void actuate(int dir);
+// =========================
+// Actuator limits
+// =========================
+#define SYG_MAX 4050        // Safe upper travel limit
+#define SYG_MIN 50          // Safe lower travel limit
 
-// --- I2C SETUP ---
-#define BAR_SDA 19
-#define BAR_SCL 18
+// =========================
+// PWM settings (LEDC)
+// =========================
+#define PWM_FREQ    25000   // 25 kHz: above human hearing to eliminate whine
+#define PWM_RES     8       // 8-bit resolution (0-255)
+#define PWM_CH1     0       // LEDC hardware channel for IN1
+#define PWM_CH2     1       // LEDC hardware channel for IN2
 
-// --- PWM SETUP ---
-#define PWM_FREQ 25000 // 25 kHz: Above human hearing to eliminate whine
-#define PWM_RES  8     // 8-bit resolution (0-255) to match Python logic
-#define PWM_CH1  0     // ESP32 Hardware Timer Channel 0
-#define PWM_CH2  1     // ESP32 Hardware Timer Channel 1
-volatile int pwm = 0;
+// =========================
+// General settings
+// =========================
+#define NUM_SAMPLES_ACTUATOR        10
+#define SERIAL_BAUD                 115200
+#define TELEMETRY_PERIOD_MS         50
+#define ATM_PRESSURE_MBAR           1024
+#define DEPTH_SENSOR_REQUIRED       true
 
-// --- BAR SETUP ---
-const int FLUID_DENSITY = 997; // kg/m^3, 997 for freshwater
+// =========================
+// Battery ADC calibration
+// =========================
+#define ADC_MAX_COUNTS              4095.0f
+#define ADC_REF_VOLTAGE             3.3f
+#define BATT_DIVIDER_R_TOP_OHM      19976.0f
+#define BATT_DIVIDER_R_BOTTOM_OHM   1500.0f
+
+// =========================
+// Fluid density
+// =========================
+const int FLUID_DENSITY = 997;  // kg/m^3 (fresh water)
+
+// =========================
+// Global state
+// =========================
 MS5837 BAR;
 
-void setup() {
-    // --- SYRINGE SETUP ---
-    pinMode(SYG_FB, INPUT);
-    Serial.begin(115200);
+volatile int  g_motor_cmd      = 0;
+unsigned long g_last_telemetry = 0;
+bool          g_depth_ok       = false;
 
+// =========================
+// Function declarations
+// =========================
+int   getActuator(int n = NUM_SAMPLES_ACTUATOR);
+void  actuate(int u);
+void  processSerial();
+void  sendTelemetry();
+bool  updateDepthSensor(float &pressure_mbar, float &temperature_c, float &depth_m);
+int   clampMotorCommand(int u);
+float readBatteryVoltage();
+
+// =========================
+// Setup
+// =========================
+void setup() {
+    pinMode(SYG_FB,     INPUT);
+    pinMode(BATT_SENSE, INPUT);
+    analogReadResolution(12);
+    analogSetPinAttenuation(BATT_SENSE, ADC_0db);
+
+    Serial.begin(SERIAL_BAUD);
+    delay(200);
+
+    // LEDC PWM init
     ledcSetup(PWM_CH1, PWM_FREQ, PWM_RES);
     ledcSetup(PWM_CH2, PWM_FREQ, PWM_RES);
-
     ledcAttachPin(SYG_IN1, PWM_CH1);
     ledcAttachPin(SYG_IN2, PWM_CH2);
+    actuate(0);  // Brake on startup
 
-    actuate(0);
-
-    // --- BAR INIT ---
+    // Depth sensor init — blocks until ready if DEPTH_SENSOR_REQUIRED
     Wire.begin(BAR_SDA, BAR_SCL);
-    bool BAR_OK = false;
 
     do {
-    if (BAR.init()) {
-      BAR.setModel(MS5837::MS5837_02BA);
-      BAR.setFluidDensity(FLUID_DENSITY);
-      Serial.println("DEPTH_SENSOR_OK");
-      BAR_OK = true;
-    } else {
-      Serial.println("DEPTH_SENSOR_FAIL");
-      delay(1000);
-    }
-  } while (BAR_OK == false);
+        if (BAR.init()) {
+            BAR.setModel(MS5837::MS5837_02BA);
+            BAR.setFluidDensity(FLUID_DENSITY);
+            g_depth_ok = true;
+            Serial.println("DEPTH_SENSOR_OK");
+            break;
+        }
+
+        g_depth_ok = false;
+        Serial.println("DEPTH_SENSOR_FAIL");
+
+        if (DEPTH_SENSOR_REQUIRED) {
+            Serial.println("WAITING_FOR_DEPTH_SENSOR");
+            delay(500);
+        }
+    } while (DEPTH_SENSOR_REQUIRED);
+
+    Serial.println("LOW_LEVEL_DEPTH_ACTUATOR_INTERFACE_READY");
+    Serial.println("Commands:");
+    Serial.println("  U:<value>   -> motor command in [-255,255]");
+    Serial.println("  R           -> return one telemetry line");
+    Serial.println("  S           -> stop actuator");
 }
 
+// =========================
+// Main loop
+// =========================
 void loop() {
-    if (Serial.available() > 0) {
-        String input = Serial.readStringUntil('\n');
+    processSerial();
+    actuate(g_motor_cmd);
 
-        int cmd = input.toInt();
-        pwm = constrain(cmd, -255, 255);
-
-        actuate(pwm);
-
-        BAR.read();
-
-        Serial.print(analogRead(SYG_FB));
-        Serial.print(",");
-        Serial.println(BAR.depth());
+    if (millis() - g_last_telemetry >= TELEMETRY_PERIOD_MS) {
+        g_last_telemetry = millis();
+        sendTelemetry();
     }
 }
 
-void actuate(int dir) {
+// =========================
+// Serial command handling
+// =========================
+void processSerial() {
+    if (!Serial.available()) return;
+
+    String msg = Serial.readStringUntil('\n');
+    msg.trim();
+    if (msg.length() == 0) return;
+
+    if (msg == "R") {
+        sendTelemetry();
+        return;
+    }
+
+    if (msg == "S") {
+        g_motor_cmd = 0;
+        actuate(0);
+        Serial.println("ACK:STOP");
+        return;
+    }
+
+    if (msg.startsWith("U:")) {
+        int cmd = msg.substring(2).toInt();
+        g_motor_cmd = clampMotorCommand(cmd);
+        Serial.print("ACK:U:");
+        Serial.println(g_motor_cmd);
+        return;
+    }
+
+    Serial.print("ERR:UNKNOWN_CMD:");
+    Serial.println(msg);
+}
+
+// =========================
+// Telemetry output
+// =========================
+void sendTelemetry() {
+    int   act_raw   = getActuator();
+    float battery_v = readBatteryVoltage();
+
+    float pressure_mbar = NAN;
+    float temperature_c = NAN;
+    float depth_m       = NAN;
+
+    bool ok = updateDepthSensor(pressure_mbar, temperature_c, depth_m);
+
+    // CSV: time_ms, actuator_raw, motor_cmd, depth_m, pressure_mbar, temp_c, depth_ok, battery_v
+    Serial.print(millis());         Serial.print(",");
+    Serial.print(act_raw);          Serial.print(",");
+    Serial.print(g_motor_cmd);      Serial.print(",");
+    Serial.print(depth_m, 4);       Serial.print(",");
+    Serial.print(pressure_mbar, 2); Serial.print(",");
+    Serial.print(temperature_c, 2); Serial.print(",");
+    Serial.print(ok ? 1 : 0);       Serial.print(",");
+    Serial.println(battery_v, 2);
+}
+
+// =========================
+// Battery voltage read
+// =========================
+float readBatteryVoltage() {
+    float v_sense     = analogReadMilliVolts(BATT_SENSE);
+    float divider_gain = (BATT_DIVIDER_R_TOP_OHM + BATT_DIVIDER_R_BOTTOM_OHM)
+                         / BATT_DIVIDER_R_BOTTOM_OHM;
+    return v_sense * divider_gain / 1000.0f;
+}
+
+// =========================
+// Depth sensor update
+// =========================
+bool updateDepthSensor(float &pressure_mbar, float &temperature_c, float &depth_m) {
+    if (!g_depth_ok) return false;
+
+    BAR.read();
+    pressure_mbar = BAR.pressure();
+    temperature_c = BAR.temperature();
+    depth_m       = BAR.depth();
+
+    return !(isnan(pressure_mbar) || isnan(temperature_c) || isnan(depth_m));
+}
+
+// =========================
+// Actuator drive (DRV8251 via LEDC)
+// =========================
+void actuate(int u) {
     int pos = analogRead(SYG_FB);
 
-    // Boundary safety limits
-    if (pos >= SYG_MAX && dir > 0) {
-        dir = 0;
-    }
-    if (pos <= SYG_MIN && dir < 0) {
-        dir = 0;
-    }
+    // Hard software travel limits
+    if (pos >= SYG_MAX && u > 0) u = 0;
+    if (pos <= SYG_MIN && u < 0) u = 0;
 
-    // DRV8251 Control Logic using LEDC
-    if (dir > 0) {
+    u = constrain(u, -255, 255);
+
+    if (u > 0) {                    // Extend
         ledcWrite(PWM_CH1, 0);
-        ledcWrite(PWM_CH2, dir);
-    } else if (dir < 0) {
+        ledcWrite(PWM_CH2, u);
+    } else if (u < 0) {             // Retract
         ledcWrite(PWM_CH2, 0);
-        ledcWrite(PWM_CH1, -dir);
-    } else {
-        // BRAKE MODE: Both inputs HIGH (255 maxes out the 8-bit resolution)
+        ledcWrite(PWM_CH1, -u);
+    } else {                        // Brake: both inputs HIGH
         ledcWrite(PWM_CH1, 255);
         ledcWrite(PWM_CH2, 255);
     }
+}
+
+// =========================
+// Read actuator position (averaged)
+// =========================
+int getActuator(int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += analogRead(SYG_FB);
+    }
+    return sum / n;
+}
+
+// =========================
+// Clamp command to valid range
+// =========================
+int clampMotorCommand(int u) {
+    return constrain(u, -255, 255);
 }
