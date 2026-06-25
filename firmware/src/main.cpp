@@ -1,20 +1,4 @@
-/*
- * Low-Level Depth Actuator Interface
- *
- * Actuator:     DRV8251 H-bridge, LEDC PWM @ 25 kHz (above audible range)
- * Depth sensor: MS5837-02BA via I2C
- * Battery:      Resistor divider on BATT_SENSE, read via analogReadMilliVolts()
- *
- * Serial commands:
- *   U:<value>  -> set motor command [-255, 255]
- *   R          -> send one telemetry line immediately
- *   S          -> stop actuator (cmd = 0)
- *
- * Telemetry CSV (sent every TELEMETRY_PERIOD_MS):
- *   time_ms, actuator_raw, motor_cmd, depth_m, pressure_mbar, temp_c, depth_ok, battery_v
- */
-
-#include <Arduino.h>
+include <Arduino.h>
 #include <Wire.h>
 #include <MS5837.h>
 
