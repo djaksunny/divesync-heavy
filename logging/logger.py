@@ -153,4 +153,3 @@ finally:
     boot_file.close()
     raw_file.close()
     ser.close()
-    
