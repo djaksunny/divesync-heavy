@@ -148,7 +148,7 @@ except KeyboardInterrupt:
 finally:
     # Write metadata to JSON
     with open(f"{FOLDER_PATH}/metadata.json", "w") as json_file:
-        json.dump(CONFIG, json_file)
+        json.dump(CONFIG, json_file, indent=4)
 
     boot_file.close()
     raw_file.close()
