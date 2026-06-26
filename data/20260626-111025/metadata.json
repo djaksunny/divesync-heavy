@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260626-111025",
+    "control-mode": "manual",
+    "requested-duration": 10.0,
+    "actual-duration": 10.006245374679565,
+    "start-time": 1782490250.7690003,
+    "start-time-readable": "2026-06-26 11:10:50",
+    "notes": "test depth sensor disconnected"
+}

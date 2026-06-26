@@ -72,7 +72,7 @@ while True:
     except IndexError:
         print(f"Error: enter a number between 0 and {len(port_list) - 1}\n")
 
-# Connect and reset device (\n added to ensure microcontroller registers it)
+# Connect and reset timer
 ser = serial.Serial(COM_PORT, 115200, timeout=1)
 print(f"Connected to {COM_PORT}\n")
 ser.write("RST\n".encode("utf-8"))

@@ -1,0 +1,237 @@
+[ 13576][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13582][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13589][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13595][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13601][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13607][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 13614][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 14129][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14135][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14142][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14148][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14154][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14160][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14167][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 14682][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14688][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14695][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14701][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14707][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14713][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 14720][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 15235][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15241][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15248][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15254][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15260][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15266][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15273][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 15788][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15794][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15801][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15807][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15813][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15819][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 15826][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 16341][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16347][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16354][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16360][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16366][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16372][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16379][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 16894][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16900][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16907][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16913][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16919][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16925][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 16932][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 17447][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17453][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17460][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17466][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17472][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17478][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 17485][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 18000][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18006][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18013][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18019][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18025][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18031][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18038][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 18553][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18559][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18566][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18572][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18578][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18584][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 18591][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 19106][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19112][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19119][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19125][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19131][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19137][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19144][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 19659][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19665][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19672][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19678][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19684][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19690][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 19697][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 20212][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20218][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20225][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20231][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20237][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20243][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20250][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 20765][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20771][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20778][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20784][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20790][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20796][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 20803][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 21318][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21324][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21331][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21337][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21343][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21349][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21356][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 21871][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21877][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21884][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21890][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21896][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21902][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 21909][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 22424][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22430][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22437][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22443][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22449][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22455][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22462][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 22977][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22983][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22990][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 22996][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23002][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23008][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23015][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 23530][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23536][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23543][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23549][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23555][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23561][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 23568][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 24083][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24089][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24096][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24102][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24108][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24114][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24121][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 24636][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24642][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24649][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24655][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24661][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24667][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 24674][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 25189][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25195][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25202][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25208][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25214][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25220][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25227][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 25742][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25748][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25755][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25761][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25767][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25773][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 25780][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 26295][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26301][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26308][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26314][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26320][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26326][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26333][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 26848][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26854][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26861][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26867][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26873][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26879][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 26886][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+[ 27401][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27407][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27414][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27420][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27426][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27432][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+[ 27439][E][Wire.cpp:513] requestFrom(): i2cRead returned Error -1
+DEPTH_SENSOR_FAIL
+WAITING_FOR_DEPTH_SENSOR
+DEPTH_SENSOR_OK
+LOW_LEVEL_DEPTH_ACTUATOR_INTERFACE_READY
+=== READY SIGNAL RECEIVED ===
