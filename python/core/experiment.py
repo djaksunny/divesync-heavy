@@ -135,6 +135,8 @@ class Experiment:
 
             print("\nSYSTEM READY\n")
 
+    def get_folder_path(self):
+        return self._folder_path
 
     def start(self):
         if self._state == self.States.READY:
