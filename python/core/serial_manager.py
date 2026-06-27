@@ -1,4 +1,4 @@
-# reads serial, handles TX/RX to BCD
+# Reads serial, handles TX/RX to BCD
 
 import serial
 
@@ -7,7 +7,7 @@ class SerialManager:
         # Connect to serial
         self._ser = serial.Serial(port_name, 115200, timeout=1)
         print(f"Connected to {port_name}\n")
-        self._ser.write("RST\n".encode("utf-8")) # restart BCD for cleaner time
+        self._ser.write("RST\n".encode("utf-8")) # restart BCD
 
     def read_line(self):
         # RX from serial

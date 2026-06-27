@@ -1,4 +1,4 @@
-# takes raw line from serial and parses it for easy access to telemetry data without repetitive parsing
+# Takes raw line from serial and parses it for easy access to telemetry data without repetitive parsing
 # format: time_ms, actuator_raw, motor_cmd, depth_m, pressure_mbar, temp_c, depth_ok, battery_v
 
 class Telemetry:

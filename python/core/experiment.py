@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 import json
 from enum import Enum
+import serial.tools.list_ports
 
 
 class Experiment:
@@ -31,7 +32,6 @@ class Experiment:
         self._state = self.States.HANDSHAKE
 
         # Config
-        self._com_port = None
         self._experiment_duration_s = None
         self._start_time_s = None
 
@@ -56,7 +56,6 @@ class Experiment:
 
 
     def setup_experiment(self):
-
         while True:
             mode = input("Control mode [manual / mpc / rl]: ").strip().lower()
             if mode in ["manual", "mpc", "rl"]:
@@ -82,9 +81,29 @@ class Experiment:
             print(f"{k}: {v}")
         print("")
 
+        # Serial port selection
+        self.com_port = None
+        port_list = []
+        print("Available COM ports:\n")
+
+        for index, port in enumerate(serial.tools.list_ports.comports()):
+            port_list.append(port)
+            print(f"[{index}]: {port.name} ({port.description})")
+
+        print("")
+
+        while True:
+            try:
+                com_index = int(input("Select a COM port (index): ").strip())
+                self.com_port = port_list[com_index].name
+                print(f"\nSelected COM port: {self.com_port}\n")
+                break
+            except ValueError:
+                print("Error: please enter a valid number\n")
+            except IndexError:
+                print(f"Error: enter a number between 0 and {len(port_list) - 1}\n")
 
     def handshake_protocol(self, raw):
-
         line = raw.decode("utf-8", errors="ignore").strip()
 
         # Always log boot phase
@@ -109,11 +128,6 @@ class Experiment:
         ):
             self._state = self.States.READY
 
-            self._start_time_s = time.time()
-
-            self._config["start-time"] = self._start_time_s
-            self._config["start-time-readable"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
             self._boot_file.close()
 
             with open(f"{self._folder_path}/metadata.json", "w") as f:
@@ -124,7 +138,18 @@ class Experiment:
 
     def start(self):
         if self._state == self.States.READY:
+            self._start_time_s = time.time()
+            self._config["start-time"] = self._start_time_s
+            self._config["start-time-readable"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self._state = self.States.RUNNING
+
+    def abort(self):
+        if self._state == self.States.RUNNING:
+                print("Aborting experiment...")
+                self._state = self.States.STOPPED
+                elapsed_s = time.time() - self._start_time_s
+                self._config["actual-duration"] = elapsed_s
+                print("Experiment aborted")
 
 
     def is_valid_csv(self, line):
