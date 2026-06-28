@@ -7,7 +7,6 @@ import json
 from enum import Enum
 import serial.tools.list_ports
 
-
 class Experiment:
 
     class States(Enum):
@@ -16,7 +15,6 @@ class Experiment:
         READY = 2
         RUNNING = 3
         STOPPED = 4
-
 
     def __init__(self):
         print("=== DIVESYNC HEAVY - DATA COLLECTION INTERFACE ===")
@@ -54,12 +52,11 @@ class Experiment:
             "notes": None
         }
 
-
     def setup_experiment(self):
         while True:
-            mode = input("Control mode [manual / mpc / rl]: ").strip().lower()
-            if mode in ["manual", "mpc", "rl"]:
-                self._config["control-mode"] = mode
+            self.mode = input("Control mode [manual / mpc / rl]: ").strip().lower()
+            if self.mode in ["manual", "mpc", "rl"]:
+                self._config["control-mode"] = self.mode
                 break
             print("Invalid mode. Try again.")
 
@@ -94,14 +91,22 @@ class Experiment:
 
         while True:
             try:
+                if len(port_list) == 0:
+                    print("No ports available. Terminating experiment.\n")
+                    self._terminate()
+                    self.com_port = None
+                    return
                 com_index = int(input("Select a COM port (index): ").strip())
-                self.com_port = port_list[com_index].name
+                self.com_port = port_list[com_index].device
                 print(f"\nSelected COM port: {self.com_port}\n")
                 break
             except ValueError:
                 print("Error: please enter a valid number\n")
             except IndexError:
-                print(f"Error: enter a number between 0 and {len(port_list) - 1}\n")
+                if len(port_list) == 1:
+                    print(f"Error: enter 0")
+                else:
+                    print(f"Error: enter a number between 0 and {len(port_list) - 1}\n")
 
     def handshake_protocol(self, raw):
         line = raw.decode("utf-8", errors="ignore").strip()
@@ -130,20 +135,27 @@ class Experiment:
 
             self._boot_file.close()
 
-            with open(f"{self._folder_path}/metadata.json", "w") as f:
-                json.dump(self._config, f, indent=4)
-
             print("\nSYSTEM READY\n")
+
+    def is_ready(self):
+        return self._state == self.States.READY
 
     def get_folder_path(self):
         return self._folder_path
 
     def start(self):
         if self._state == self.States.READY:
+            print("Starting experiment...")
             self._start_time_s = time.time()
             self._config["start-time"] = self._start_time_s
             self._config["start-time-readable"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self._state = self.States.RUNNING
+
+    def _terminate(self):
+        with open(f"{self._folder_path}/metadata.json", "w") as f:
+            json.dump(self._config, f, indent=4)
+        
+        print(f"EXPERIMENT DIRECTORY {self._folder_path}\n")
 
     def abort(self):
         if self._state == self.States.RUNNING:
@@ -151,14 +163,13 @@ class Experiment:
                 self._state = self.States.STOPPED
                 elapsed_s = time.time() - self._start_time_s
                 self._config["actual-duration"] = elapsed_s
-                print("Experiment aborted")
-
+                self._terminate()
+                print("Experiment aborted\n")
 
     def is_valid_csv(self, line):
         if self._state == self.States.RUNNING and line.count(",") == 7:
             return line
         return None
-
 
     def is_running(self):
         if self._state != self.States.RUNNING:
@@ -169,8 +180,9 @@ class Experiment:
         if elapsed >= self._experiment_duration_s:
             self._state = self.States.STOPPED
             self._config["actual-duration"] = elapsed
-
+            self._terminate()
             print("\nExperiment complete -> stopping logging\n")
             return False
 
         return True
+
