@@ -1,19 +1,14 @@
-import time
 import pygame
-import serial
 
-# 1404 is neutral buoyancy with most tether inside water
+class ManualController:
+    def __init__(self):
+        pygame.init()
+        pygame.joystick.init()
 
-ser = serial.Serial("COM7", 115200, timeout=1)
+        self._joystick = pygame.joystick.Joystick(0)
+        self._joystick.init()
 
-pygame.init()
-pygame.joystick.init()
-
-joystick = pygame.joystick.Joystick(0)
-joystick.init()
-
-while True:
-    pygame.event.pump()
-    pwm = 255 * joystick.get_axis(1)
-    ser.write(f"U:{pwm}\n".encode("utf-8"))
-    time.sleep(0.05)
+    def get_command(self):
+        pygame.event.pump()
+        pwm = round(255 * self._joystick.get_axis(1))
+        return f"U:{pwm}\n"
