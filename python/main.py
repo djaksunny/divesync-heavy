@@ -1,72 +1,114 @@
-# Main orchestrator file
-
 import time
 
-# Core packages
+# Core
 from core.experiment import Experiment
 from core.serial_manager import SerialManager
 from core.logger import Logger
 from core.telemetry import Telemetry
 
-# Controller packages
+# Controllers
 from controllers.manual import ManualController
-# from controllers.manual import PIDController
-# from controllers.manual import RLController
 
-# Visualizer packages
-# from visualization.analysis import Analysis
-# from visualization.live_plotter import LivePlotter
+# -------------------------
+# Config
+# -------------------------
+BATTERY_CUTOFF_V = 10.0
 
-if __name__ == "__main__":
-    # Create experiment instance
-    exp = Experiment()
-    exp.setup_experiment()
+# -------------------------
+# Setup
+# -------------------------
+exp = Experiment()
+exp.setup_experiment()
 
-    # Ensure not empty
-    if exp.com_port is None:
+if exp.com_port is None:
+    print("No COM port selected. Exiting.")
+    exit()
+
+ser = SerialManager(exp.com_port)
+log = Logger(exp.get_folder_path())
+tel = Telemetry()
+
+# -------------------------
+# Controller selection
+# -------------------------
+match exp.mode:
+    case "manual":
+        con = ManualController()
+    case _:
+        print("Invalid or unsupported controller mode")
         exit()
 
-    # Create serial manager instance
-    ser = SerialManager(exp.com_port)
+# -------------------------
+# Handshake phase (blocking)
+# -------------------------
+print("\n=== WAITING FOR DEVICE READY ===\n")
 
-    # Create logger instance
-    log = Logger(exp._folder_path)
+while not exp.is_ready():
+    line = ser.read_line()
+    exp.handshake_protocol(line)
 
-    # Create telemetry instance
-    tel = Telemetry()
+# -------------------------
+# Start experiment
+# -------------------------
+exp.start()
 
-    # Create controllers
-    match exp.mode:
-        case "manual":
-            con = ManualController()
-        # case "pid":
-        #     con = PIDController()
-        # case "rl":
-        #     con = RLController()
+print("\n=== EXPERIMENT RUNNING ===\n")
 
-    # Boot/handshake protocol
-    while not(exp.is_ready()):
-        exp.handshake_protocol(ser.read_line())
+# -------------------------
+# Main loop
+# -------------------------
+try:
+    while True:
 
-    # Begin experiment
-    exp.start()
+        # Stop condition (central authority)
+        if not exp.is_running():
+            break
 
-    # Timing setup
-    loop_hz = 20
-    dt = 1/ loop_hz
-    last = time.time()
+        # Read serial stream
+        line = ser.read_line()
+        if not line:
+            continue
 
-    while exp.is_running():
-        if time.time() - last >= dt:
-            last = time.time()
-            try:
-                line = ser.read_line()
-                if exp.is_valid_csv(line):
-                    tel.update(line)
-                    log.write_raw(line)
-                    ser.write_command(con.get_command())
-                    if tel.battery_v <= 10:
-                        print("\nBattery voltage below 10V. Stopping experiment to protect hardware.\n")
-                        exp.abort()
-            except KeyboardInterrupt:
-                exp.abort()
+        # Validate telemetry format
+        if not exp.is_valid_csv(line):
+            continue
+
+        # Parse telemetry
+        tel.update(line)
+
+        # Log raw data
+        log.write_raw(line)
+
+        # Controller output
+        try:
+            cmd = con.get_command()
+            ser.write_command(cmd)
+        except Exception as e:
+            print(f"[CONTROLLER ERROR] {e}")
+
+        # Safety: battery cutoff
+        if tel.battery_v is not None and tel.battery_v <= BATTERY_CUTOFF_V:
+            print("\n[SAFETY STOP] Battery below threshold\n")
+            exp.abort()
+            break
+
+        # Safety: experiment timeout (handled internally too)
+        if not exp.is_running():
+            break
+
+except KeyboardInterrupt:
+    print("\n[CTRL+C] Aborting experiment\n")
+    exp.abort()
+
+finally:
+    print("\nShutting down...\n")
+
+    try:
+        ser.write_command("S")  # stop actuator
+    except:
+        pass
+
+    log.close_raw()
+    ser.close()
+
+    print(f"Saved experiment in: {exp.get_folder_path()}")
