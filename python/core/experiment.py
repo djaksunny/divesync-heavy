@@ -109,7 +109,7 @@ class Experiment:
                     print(f"Error: enter a number between 0 and {len(port_list) - 1}\n")
 
     def handshake_protocol(self, raw):
-        line = raw.decode("utf-8", errors="ignore").strip()
+        line = raw.strip()
 
         # Always log boot phase
         if self._state == self.States.HANDSHAKE:
@@ -154,8 +154,6 @@ class Experiment:
     def _terminate(self):
         with open(f"{self._folder_path}/metadata.json", "w") as f:
             json.dump(self._config, f, indent=4)
-        
-        print(f"EXPERIMENT DIRECTORY {self._folder_path}\n")
 
     def abort(self):
         if self._state == self.States.RUNNING:
@@ -165,6 +163,7 @@ class Experiment:
                 self._config["actual-duration"] = elapsed_s
                 self._terminate()
                 print("Experiment aborted\n")
+                print(f"EXPERIMENT DIRECTORY {self._folder_path}\n")
 
     def is_valid_csv(self, line):
         if self._state == self.States.RUNNING and line.count(",") == 7:

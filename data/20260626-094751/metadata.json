@@ -1,9 +1,0 @@
-{
-    "experiment-id": "20260626-094751",
-    "control-mode": "mpc",
-    "requested-duration": 5.0,
-    "actual-duration": 5.038094520568848,
-    "start-time": 1782485280.9420803,
-    "start-time-readable": "2026-06-26 09:48:00",
-    "notes": "regular routine function test"
-}
