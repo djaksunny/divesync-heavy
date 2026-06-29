@@ -23,7 +23,7 @@ class Processor:
         self.depth_filtered_m = sorted_window[mid]
 
         # Actuator units conversion
-        self.actuator_mm = tel.actuator_raw * 50 / 4095
+        self.actuator_mm = round(tel.actuator_raw * 50 / 4095, 3)
 
         # Saves CSV for logger
         self.processed_csv = f"{self.depth_filtered_m},{self.actuator_mm}"
