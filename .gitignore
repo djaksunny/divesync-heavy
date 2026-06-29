@@ -1,5 +1,6 @@
 firmware/.pio/
 firmware/.vscode/
 
-python/__pycache__
-python/core/__pycache__
+__pycache__/
+*.py[cod]
+*$py.class
