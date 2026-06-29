@@ -74,7 +74,8 @@ try:
         pro.process(tel)
 
         # Log data
-        log.write_raw(line)
+        log.write_raw(tel)
+        log.write_processed(pro)
 
         # Controller output
         try:
