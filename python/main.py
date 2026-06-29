@@ -1,22 +1,19 @@
-import time
-
 # Core
 from core.experiment import Experiment
 from core.serial_manager import SerialManager
 from core.logger import Logger
 from core.telemetry import Telemetry
+from core.processor import Processor
 
 # Controllers
 from controllers.manual import ManualController
+# from controllers.pid import PIDController
+# from controllers.rl import RLController
 
-# -------------------------
 # Config
-# -------------------------
 BATTERY_CUTOFF_V = 10.0
 
-# -------------------------
 # Setup
-# -------------------------
 exp = Experiment()
 exp.setup_experiment()
 
@@ -27,36 +24,33 @@ if exp.com_port is None:
 ser = SerialManager(exp.com_port)
 log = Logger(exp.get_folder_path())
 tel = Telemetry()
+pro = Processor()
 
-# -------------------------
-# Controller selection
-# -------------------------
+# Select controller
 match exp.mode:
     case "manual":
         con = ManualController()
+    # case "pid":
+    #     con = PIDController()
+    # case "rl":
+    #     con = RLController()
     case _:
         print("Invalid or unsupported controller mode")
         exit()
 
-# -------------------------
-# Handshake phase (blocking)
-# -------------------------
+# Handshake
 print("\n=== WAITING FOR DEVICE READY ===\n")
 
 while not exp.is_ready():
     line = ser.read_line()
     exp.handshake_protocol(line)
 
-# -------------------------
 # Start experiment
-# -------------------------
 exp.start()
 
 print("\n=== EXPERIMENT RUNNING ===\n")
 
-# -------------------------
 # Main loop
-# -------------------------
 try:
     while True:
 
@@ -76,7 +70,10 @@ try:
         # Parse telemetry
         tel.update(line)
 
-        # Log raw data
+        # Process telemetry
+        pro.process(tel)
+
+        # Log data
         log.write_raw(line)
 
         # Controller output

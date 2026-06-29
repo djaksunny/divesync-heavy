@@ -11,8 +11,12 @@ class Telemetry:
         self.temp_c = None
         self.depth_ok = None
         self.battery_v = None
+        self.raw_csv = None
 
     def update(self, line):
+        # Saves CSV for logger
+        self.raw_csv = line
+
         # Splits CSV line
         self._parsed = line.strip().split(",")
 
