@@ -17,52 +17,56 @@ from controllers.manual import ManualController
 # from visualization.analysis import Analysis
 # from visualization.live_plotter import LivePlotter
 
-# Create experiment instance
-exp = Experiment()
-exp.setup_experiment()
+if __name__ == "__main__":
+    # Create experiment instance
+    exp = Experiment()
+    exp.setup_experiment()
 
-# Ensure not empty
-if exp.com_port is None:
-    exit()
+    # Ensure not empty
+    if exp.com_port is None:
+        exit()
 
-# Create serial manager instance
-ser = SerialManager(exp.com_port)
+    # Create serial manager instance
+    ser = SerialManager(exp.com_port)
 
-# Create logger instance
-log = Logger(exp._folder_path)
+    # Create logger instance
+    log = Logger(exp._folder_path)
 
-# Create telemetry instance
-tel = Telemetry()
+    # Create telemetry instance
+    tel = Telemetry()
 
-# Create controllers
-match exp.mode:
-    case "manual":
-        con = ManualController()
-    # case "pid":
-    #     con = PIDController()
-    # case "rl":
-    #     con = RLController()
+    # Create controllers
+    match exp.mode:
+        case "manual":
+            con = ManualController()
+        # case "pid":
+        #     con = PIDController()
+        # case "rl":
+        #     con = RLController()
 
-# Boot/handshake protocol
-while not(exp.is_ready()):
-    exp.handshake_protocol(ser.read_line())
+    # Boot/handshake protocol
+    while not(exp.is_ready()):
+        exp.handshake_protocol(ser.read_line())
 
-# Begin experiment
-exp.start()
+    # Begin experiment
+    exp.start()
 
-# Timing setup
-loop_hz = 20
-dt = 1/ loop_hz
-last = time.time()
+    # Timing setup
+    loop_hz = 20
+    dt = 1/ loop_hz
+    last = time.time()
 
-while exp.is_running():
-    if time.time() - last >= dt:
-        last = time.time()
-        try:
-            line = ser.read_line()
-            if exp.is_valid_csv(line):
-                tel.update(line)
-                log.write_raw(line)
-                ser.write_command(con.get_command())
-        except KeyboardInterrupt:
-            exp.abort()
+    while exp.is_running():
+        if time.time() - last >= dt:
+            last = time.time()
+            try:
+                line = ser.read_line()
+                if exp.is_valid_csv(line):
+                    tel.update(line)
+                    log.write_raw(line)
+                    ser.write_command(con.get_command())
+                    if tel.battery_v <= 10:
+                        print("\nBattery voltage below 10V. Stopping experiment to protect hardware.\n")
+                        exp.abort()
+            except KeyboardInterrupt:
+                exp.abort()
