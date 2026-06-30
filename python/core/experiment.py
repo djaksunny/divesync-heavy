@@ -54,8 +54,8 @@ class Experiment:
 
     def setup_experiment(self):
         while True:
-            self.mode = input("Control mode [manual / mpc / rl]: ").strip().lower()
-            if self.mode in ["manual", "mpc", "rl"]:
+            self.mode = input("Control mode [manual / pid / rl]: ").strip().lower()
+            if self.mode in ["manual", "pid", "rl"]:
                 self._config["control-mode"] = self.mode
                 break
             print("Invalid mode. Try again.")

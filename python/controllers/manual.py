@@ -8,7 +8,7 @@ class ManualController:
         self._joystick = pygame.joystick.Joystick(0)
         self._joystick.init()
 
-    def get_command(self):
+    def get_command(self, setpoint=None, actuator_mm=None):
         pygame.event.pump()
         pwm = round(255 * self._joystick.get_axis(1))
         return f"U:{pwm}\n"
