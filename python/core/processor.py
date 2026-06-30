@@ -6,10 +6,12 @@ class Processor:
         self._LIMIT = 15
 
         self.depth_filtered_m = None
+        self.depth_setpoint_m = None
         self.actuator_mm = None
+        self.actuator_setpoint_mm = None
         self.processed_csv = None
 
-    def process(self, tel):
+    def process(self, tel, depth_setpoint_m=None, actuator_setpoint_mm=None):
         # Update window
         self._window.append(tel.depth_m)
 
@@ -25,5 +27,9 @@ class Processor:
         # Actuator units conversion
         self.actuator_mm = round(tel.actuator_raw * 50 / 4095, 3)
 
+        # Update setpoints
+        self.depth_setpoint_m = depth_setpoint_m
+        self.actuator_setpoint_mm = actuator_setpoint_mm  
+
         # Saves CSV for logger
-        self.processed_csv = f"{self.depth_filtered_m},{self.actuator_mm}"
+        self.processed_csv = f"{self.depth_filtered_m},{self.depth_setpoint_m},{self.actuator_mm},{self.actuator_setpoint_mm}"

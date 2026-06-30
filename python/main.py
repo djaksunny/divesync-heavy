@@ -7,7 +7,7 @@ from core.processor import Processor
 
 # Controllers
 from controllers.manual import ManualController
-# from controllers.pid import PIDController
+from controllers.pid import PIDController
 # from controllers.rl import RLController
 
 # Config
@@ -30,8 +30,8 @@ pro = Processor()
 match exp.mode:
     case "manual":
         con = ManualController()
-    # case "pid":
-    #     con = PIDController()
+    case "pid":
+        con = PIDController()
     # case "rl":
     #     con = RLController()
     case _:
