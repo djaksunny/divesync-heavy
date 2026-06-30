@@ -6,3 +6,5 @@ __pycache__/
 *$py.class
 
 python/controllers/manual_runner.py
+
+sysid/
