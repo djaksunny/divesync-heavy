@@ -10,7 +10,7 @@ class Logger:
         # Setup processed file
         self._processed_path = f"{folder_path}/processed.csv"
         self._processed_file = open(self._processed_path, "w")
-        self._processed_file.write("depth_filtered_m,depth_setpoint_m,actuator_mm,actuator_setpoint_mm\n")
+        self._processed_file.write("time_s,depth_filtered_m,depth_setpoint_m,actuator_mm,actuator_setpoint_mm,motor_cmd\n")
 
     # Raw file write functions
     def write_raw(self, tel):
