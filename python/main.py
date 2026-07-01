@@ -10,6 +10,9 @@ from controllers.manual import ManualController
 from controllers.pid import PIDController
 # from controllers.rl import RLController
 
+# Visualization
+from visualization.plotter import Plotter
+
 # Config
 BATTERY_CUTOFF_V = 10.0
 
@@ -31,7 +34,7 @@ match exp.mode:
     case "manual":
         con = ManualController()
     case "pid":
-        con = PIDController()
+        con = PIDController((1,0.5,0.05), (0,0,0))
     # case "rl":
     #     con = RLController()
     case _:
@@ -110,3 +113,6 @@ finally:
     ser.close()
 
     print(f"Saved experiment in: {exp.get_folder_path()}")
+
+    vis = Plotter(exp.get_folder_path())
+    vis.plot()

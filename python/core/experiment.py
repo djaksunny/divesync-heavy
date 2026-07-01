@@ -165,7 +165,6 @@ class Experiment:
                 print("Experiment aborted\n")
                 print(f"EXPERIMENT DIRECTORY {self._folder_path}\n")
 
-
     def is_valid_csv(self, line):
         if self._state == self.States.RUNNING and line.count(",") == 7:
             return line
@@ -185,4 +184,3 @@ class Experiment:
             return False
 
         return True
-

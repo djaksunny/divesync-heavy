@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class Plotter:
-    def __init__(self, path):
-        self._df = pd.read_csv(path)
+    def __init__(self, folder_path):
+        self._df = pd.read_csv(f"{folder_path}/processed.csv")
         self._df.dropna(how='all', inplace=True)
 
     # format: time_s, depth_filtered_m, depth_setpoint_m, actuator_mm, actuator_setpoint_mm, motor_cmd
