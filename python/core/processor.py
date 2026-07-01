@@ -1,19 +1,22 @@
 # Processes telemetry object to contain processed depth (median filtering) and actuator displacement (scaled to mm), along with setpoints
-# format: time_s, depth_filtered_m, depth_setpoint_m, actuator_mm, actuator_setpoint_mm, motor_cmd
+# format: time_s, actuator_mm, actuator_setpoint_mm, depth_filtered_m, depth_setpoint_m, motor_cmd
 
 class Processor:
-    def __init__(self):
+    def __init__(self, setpoints_needed):
         self._window = []
         self._LIMIT = 15
 
+        # Do not log setpoints if not needed (e.g. manual mode)
+        self._setpoints = setpoints_needed
+
         self.time_s = None
         self.depth_filtered_m = None
-        self.depth_setpoint_m = None
-        self.actuator_mm = None
         self.actuator_setpoint_mm = None
+        self.actuator_mm = None
+        self.depth_setpoint_m = None
         self.processed_csv = None
 
-    def process(self, tel, depth_setpoint_m=None, actuator_setpoint_mm=None):
+    def process(self, tel, actuator_setpoint_mm=None, depth_setpoint_m=None):
         # Update window
         self._window.append(tel.depth_m)
 
@@ -30,11 +33,12 @@ class Processor:
         self.actuator_mm = round(tel.actuator_raw * 50 / 4095, 3)
 
         # Update setpoints
-        self.depth_setpoint_m = depth_setpoint_m
-        self.actuator_setpoint_mm = actuator_setpoint_mm  
+        if self._setpoints:
+            self.depth_setpoint_m = depth_setpoint_m
+            self.actuator_setpoint_mm = actuator_setpoint_mm  
 
         # Update time
         self.time_s = tel.time_ms / 1000
 
         # Saves CSV for logger
-        self.processed_csv = f"{self.time_s},{self.depth_filtered_m},{self.depth_setpoint_m},{self.actuator_mm},{self.actuator_setpoint_mm},{tel.motor_cmd}"
+        self.processed_csv = f"{self.time_s},{self.actuator_mm},{self.actuator_setpoint_mm},{self.depth_filtered_m},{self.depth_setpoint_m},{tel.motor_cmd}"

@@ -11,16 +11,9 @@ class SquareWaveGenerator:
         self._last_switch = time.time()
         self._is_high = True # default high
 
-    def return_value(self):
+    def value(self):
         if time.time() - self._last_switch >= self._period:
-            # If high, flip and return low
-            if self._is_high:
-                self._is_high = not self._is_high
-                return self._low
-            
-            # If low, flip and return high
             self._is_high = not self._is_high
-            return self._high
+            self._last_switch = time.time()
         
-        # Return value, not time to switch
-        return self._low if self._is_high else self._high
+        return self._high if self._is_high else self._low

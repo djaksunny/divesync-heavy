@@ -4,6 +4,7 @@ from core.serial_manager import SerialManager
 from core.logger import Logger
 from core.telemetry import Telemetry
 from core.processor import Processor
+from core.waveform import SquareWaveGenerator
 
 # Controllers
 from controllers.manual import ManualController
@@ -27,16 +28,19 @@ if exp.com_port is None:
 ser = SerialManager(exp.com_port)
 log = Logger(exp.get_folder_path())
 tel = Telemetry()
-pro = Processor()
+sqw = SquareWaveGenerator(5, 45, 5)
 
 # Select controller
 match exp.mode:
     case "manual":
         con = ManualController()
+        pro = Processor(False)
     case "pid":
-        con = PIDController((1,0.5,0.05), (0,0,0))
+        con = PIDController((5,2,0.05))
+        pro = Processor(True)
     # case "rl":
     #     con = RLController()
+        pro = Processor(True)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
@@ -74,7 +78,7 @@ try:
         tel.update(line)
 
         # Process telemetry
-        pro.process(tel)
+        pro.process(tel, sqw.value())
 
         # Log data
         log.write_raw(tel)
@@ -82,7 +86,7 @@ try:
 
         # Controller output
         try:
-            cmd = con.get_command()
+            cmd = con.get_command(pro.actuator_mm, pro.actuator_setpoint_mm, pro.depth_filtered_m, pro.depth_setpoint_m)
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
