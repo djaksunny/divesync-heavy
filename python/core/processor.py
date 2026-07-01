@@ -1,4 +1,5 @@
 # Processes telemetry object to contain processed depth (median filtering) and actuator displacement (scaled to mm), along with setpoints
+# format: time_s, depth_filtered_m, depth_setpoint_m, actuator_mm, actuator_setpoint_mm, motor_cmd
 
 class Processor:
     def __init__(self):
