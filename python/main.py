@@ -28,7 +28,7 @@ if exp.com_port is None:
 ser = SerialManager(exp.com_port)
 log = Logger(exp.get_folder_path())
 tel = Telemetry()
-sqw = SquareWaveGenerator(5, 45, 5)
+sqw = SquareWaveGenerator(5, 45, 10)
 
 # Select controller
 match exp.mode:
@@ -36,7 +36,7 @@ match exp.mode:
         con = ManualController()
         pro = Processor(False)
     case "pid":
-        con = PIDController((5,2,0.05))
+        con = PIDController((10,7,0.05))
         pro = Processor(True)
     # case "rl":
     #     con = RLController()

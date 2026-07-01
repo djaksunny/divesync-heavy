@@ -11,7 +11,7 @@ class Plotter:
     def plot(self):
         fig, axes = plt.subplots(3, 1, sharex=True)
 
-        fig.suptitle(f"ID {self._folder_path[5:]} Experiment Results", fontsize=14, fontweight="bold")
+        fig.suptitle(f"Experiment {self._folder_path[5:]} Results", fontsize=14, fontweight="bold")
 
         time = self._df["time_s"]
 
