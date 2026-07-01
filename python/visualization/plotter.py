@@ -3,12 +3,15 @@ import matplotlib.pyplot as plt
 
 class Plotter:
     def __init__(self, folder_path):
-        self._df = pd.read_csv(f"{folder_path}/processed.csv")
+        self._folder_path = folder_path
+        self._df = pd.read_csv(f"{self._folder_path}/processed.csv")
         self._df.dropna(how='all', inplace=True)
 
     # format: time_s, depth_filtered_m, depth_setpoint_m, actuator_mm, actuator_setpoint_mm, motor_cmd
     def plot(self):
         fig, axes = plt.subplots(3, 1, sharex=True)
+
+        fig.suptitle(f"ID {self._folder_path[5:]} Experiment Results", fontsize=14, fontweight="bold")
 
         time = self._df["time_s"]
 
@@ -19,6 +22,7 @@ class Plotter:
             depth_setpoint = self._df["depth_setpoint_m"]
             axes[0].plot(time, depth_setpoint, label="Depth Setpoint (m)", color="green")
         axes[0].legend()
+        axes[0].grid(True)
 
         # Actuator plot (plot 2)
         actuator = self._df["actuator_mm"]
@@ -27,10 +31,14 @@ class Plotter:
             actuator_setpoint = self._df["actuator_setpoint_mm"]
             axes[1].plot(time, actuator_setpoint, label="Actuator Setpoint (mm)", color="purple")
         axes[1].legend()
+        axes[1].grid(True)
 
         # PWM plot (plot 3)
         pwm = self._df["motor_cmd"]
         axes[2].plot(time, pwm, label="PWM", color="orange")
         axes[2].legend()
+        axes[2].grid(True)
+
+        axes[2].set_xlabel("Time (s)")
 
         plt.show()

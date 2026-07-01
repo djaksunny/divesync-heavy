@@ -14,11 +14,14 @@ class PIDController:
             self._outer.sample_time = 0.05
 
     def get_command(self, actuator_mm=None, actuator_setpoint_mm=None, depth_m=None, depth_setpoint_m=None):
-        if self._outer:
+        if self._outer and depth_setpoint_m is not None:
             self._outer.setpoint = depth_setpoint_m
             actuator_setpoint_mm = self._outer(depth_m)
-        else:
-            actuator_setpoint_mm = actuator_setpoint_mm  # passed directly in inner-only mode
+            
+        elif actuator_setpoint_mm is None:
+            raise ValueError(
+                "Cannot compute PID command: Inner loop actuator_setpoint_mm is required"
+            )
 
         self._inner.setpoint = actuator_setpoint_mm
         pwm = round(self._inner(actuator_mm))
