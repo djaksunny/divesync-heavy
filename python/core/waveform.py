@@ -12,7 +12,7 @@ class SquareWaveGenerator:
         self._is_high = True # default high
 
     def value(self):
-        if time.time() - self._last_switch >= self._period:
+        if time.time() - self._last_switch >= self._period / 2:
             self._is_high = not self._is_high
             self._last_switch = time.time()
         

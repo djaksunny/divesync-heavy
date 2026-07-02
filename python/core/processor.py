@@ -2,12 +2,14 @@
 # format: time_s, actuator_mm, actuator_setpoint_mm, depth_filtered_m, depth_setpoint_m, motor_cmd
 
 class Processor:
-    def __init__(self, setpoints_needed):
+    def __init__(self, setpoints_needed, stroke):
         self._window = []
         self._LIMIT = 15
 
-        # Do not log setpoints if not needed (e.g. manual mode)
+        # Do not log outer setpoints if not needed (e.g. manual mode)
         self._setpoints = setpoints_needed
+
+        self._stroke = stroke
 
         self.time_s = None
         self.depth_filtered_m = None
@@ -16,7 +18,7 @@ class Processor:
         self.depth_setpoint_m = None
         self.processed_csv = None
 
-    def process(self, tel, actuator_setpoint_mm=None, depth_setpoint_m=None):
+    def process(self, tel, actuator_setpoint_mm, depth_setpoint_m=None):
         # Update window
         self._window.append(tel.depth_m)
 
@@ -30,12 +32,13 @@ class Processor:
         self.depth_filtered_m = sorted_window[mid]
 
         # Actuator units conversion
-        self.actuator_mm = round(tel.actuator_raw * 50 / 4095, 3)
+        self.actuator_mm = round(tel.actuator_raw * self._stroke / 4095, 3)
 
         # Update setpoints
         if self._setpoints:
             self.depth_setpoint_m = depth_setpoint_m
-            self.actuator_setpoint_mm = actuator_setpoint_mm  
+        
+        self.actuator_setpoint_mm = actuator_setpoint_mm
 
         # Update time
         self.time_s = tel.time_ms / 1000
