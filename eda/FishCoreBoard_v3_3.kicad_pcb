@@ -882,7 +882,7 @@
 			(uuid "45c09131-0e2e-4ddd-b60f-42b65c92051b")
 		)
 		(embedded_fonts no)
-		(model "${FOODPINTARIO}/DFR0654_3D_3DM.stp"
+		(model "C:/Users/alexs/Documents/KiCad/10.0/3dmodels/DFR0654_3D_3DM.stp"
 			(offset
 				(xyz 0 0.75 1.6)
 			)
@@ -8170,6 +8170,17 @@
 			(uuid "be2e1a08-130b-4410-aff4-d273a2b3f26d")
 		)
 		(embedded_fonts no)
+		(model "C:/Users/alexs/Documents/KiCad/10.0/3dmodels/DDA0008B.stp"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Capacitor_SMD:C_1206_3216Metric"
 		(layer "B.Cu")
@@ -9560,7 +9571,7 @@
 			(uuid "ca7139ed-5ab0-4daf-ab61-27ba66bad255")
 		)
 		(fp_text user "*"
-			(at -3.53415 2.895 90)
+			(at -2.93415 2.895 90)
 			(layer "B.SilkS")
 			(uuid "6e471011-4cf5-4d84-9334-d08f02564207")
 			(effects
@@ -9572,7 +9583,7 @@
 			)
 		)
 		(fp_text user "*"
-			(at -3.53415 -8.305 90)
+			(at -2.93415 -8.105 90)
 			(unlocked yes)
 			(layer "B.SilkS")
 			(uuid "feac01c3-c416-4131-b53d-dd418408fbc3")
@@ -9704,6 +9715,17 @@
 			(uuid "cc3c1acd-869e-4ae4-a75d-cc27ee6fd80d")
 		)
 		(embedded_fonts no)
+		(model "C:/Users/alexs/Documents/KiCad/10.0/3dmodels/DDA0008B.stp"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Capacitor_SMD:C_1206_3216Metric"
 		(layer "B.Cu")
