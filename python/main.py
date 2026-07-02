@@ -8,7 +8,7 @@ from core.waveform import SquareWaveGenerator
 
 # Controllers
 from controllers.manual import ManualController
-# from python.controllers.pid import PIDController
+# from controllers.pid import PIDController
 # from controllers.rl import RLController
 
 from controllers.inner import InnerPIDController
