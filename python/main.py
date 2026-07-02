@@ -8,14 +8,17 @@ from core.waveform import SquareWaveGenerator
 
 # Controllers
 from controllers.manual import ManualController
-from controllers.pid import PIDController
+# from python.controllers.pid import PIDController
 # from controllers.rl import RLController
+
+from controllers.inner import InnerPIDController
 
 # Visualization
 from visualization.plotter import Plotter
 
 # Config
 BATTERY_CUTOFF_V = 10.0
+ACTUATOR_STROKE = 50.0
 
 # Setup
 exp = Experiment()
@@ -31,16 +34,18 @@ tel = Telemetry()
 sqw = SquareWaveGenerator(5, 45, 10)
 
 # Select controller
+inn = InnerPIDController((15, 7.5, 0))
+
 match exp.mode:
     case "manual":
-        con = ManualController()
-        pro = Processor(False)
-    case "pid":
-        con = PIDController((10,7,0.05))
-        pro = Processor(True)
+        con = ManualController(ACTUATOR_STROKE)
+        pro = Processor(False, ACTUATOR_STROKE)
+    # case "pid":
+    #     con = PIDController(ACTUATOR_STROKE)
+    #     pro = Processor(True)
     # case "rl":
-    #     con = RLController()
-        pro = Processor(True)
+    #     con = RLController(ACTUATOR_STROKE)
+    #     pro = Processor(True)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
@@ -74,11 +79,14 @@ try:
         if not exp.is_valid_csv(line):
             continue
 
+        # Get setpoint
+        current_setpoint = con.get_command()
+
         # Parse telemetry
         tel.update(line)
 
         # Process telemetry
-        pro.process(tel, sqw.value())
+        pro.process(tel, current_setpoint, sqw.value())
 
         # Log data
         log.write_raw(tel)
@@ -86,7 +94,7 @@ try:
 
         # Controller output
         try:
-            cmd = con.get_command(pro.actuator_mm, pro.actuator_setpoint_mm, pro.depth_filtered_m, pro.depth_setpoint_m)
+            cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm)
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
