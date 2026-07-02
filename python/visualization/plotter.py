@@ -42,3 +42,55 @@ class Plotter:
         axes[2].set_xlabel("Time (s)")
 
         plt.show()
+
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+
+    # Map target path to relative directory
+    data_dir = Path("data")
+
+    if not data_dir.exists() or not data_dir.is_dir():
+        print("Error: The 'data' directory does not exist.\n")
+        sys.exit(1)
+
+    print("=== DIVESYNC HEAVY - DATA PLOTTING AND REPLAY INTERFACE ===\n")
+
+    print("Available experiments:\n")
+
+    # Gather available folders
+    folder_list = sorted([str(f) for f in data_dir.iterdir() if f.is_dir()])
+
+    # Display available choices in terminal
+    for idx, folder in enumerate(folder_list):
+        print(f"[{idx}] {Path(folder).name}")
+    print()
+
+    selected_folder_path = None
+
+    while True:
+        try:
+            if len(folder_list) == 0:
+                print("No folders available. Exiting plotter.\n")
+                selected_folder_path = None
+                sys.exit(0)
+                
+            folder_index = int(input("Select a folder (index): ").strip())
+            selected_folder_path = folder_list[folder_index]
+            print(f"\nSelected folder path: {selected_folder_path}. Plotting...\n")
+            break
+            
+        except ValueError:
+            print("Error: please enter a valid number\n")
+        except IndexError:
+            if len(folder_list) == 1:
+                print(f"Error: enter 0")
+            else:
+                print(f"Error: enter a number between 0 and {len(folder_list) - 1}\n")
+
+    # Replay execution
+    try:
+        plotter = Plotter(folder_path=selected_folder_path)
+        plotter.plot()
+    except FileNotFoundError:
+        print(f"Error: 'processed.csv' not found inside {selected_folder_path}\n")
