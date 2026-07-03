@@ -34,7 +34,7 @@ tel = Telemetry()
 sqw = SquareWaveGenerator(5, 45, 10)
 
 # Select controller
-inn = InnerPIDController((15, 7.5, 0))
+inn = InnerPIDController((15, 10, 0), 100)
 
 match exp.mode:
     case "manual":
