@@ -4,12 +4,12 @@ from core.serial_manager import SerialManager
 from core.logger import Logger
 from core.telemetry import Telemetry
 from core.processor import Processor
-from core.waveform import SquareWaveGenerator
 
 # Controllers
 from controllers.manual import ManualController
 # from controllers.pid import PIDController
 # from controllers.rl import RLController
+from controllers.waveform import SquareWaveController
 
 from controllers.inner import InnerPIDController
 
@@ -31,21 +31,20 @@ if exp.com_port is None:
 ser = SerialManager(exp.com_port)
 log = Logger(exp.get_folder_path())
 tel = Telemetry()
-sqw = SquareWaveGenerator(5, 45, 10)
+pro = Processor(ACTUATOR_STROKE)
 
 # Select controller
-inn = InnerPIDController((15, 10, 0), 100)
+inn = InnerPIDController((8, 2, 0), 130)
 
 match exp.mode:
     case "manual":
         con = ManualController(ACTUATOR_STROKE)
-        pro = Processor(False, ACTUATOR_STROKE)
     # case "pid":
     #     con = PIDController(ACTUATOR_STROKE)
-    #     pro = Processor(True)
     # case "rl":
     #     con = RLController(ACTUATOR_STROKE)
-    #     pro = Processor(True)
+    case "sysid":
+        con = SquareWaveController(5, 45, 20)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
@@ -86,7 +85,7 @@ try:
         tel.update(line)
 
         # Process telemetry
-        pro.process(tel, current_setpoint, sqw.value())
+        pro.process(tel, current_setpoint, None)
 
         # Log data
         log.write_raw(tel)

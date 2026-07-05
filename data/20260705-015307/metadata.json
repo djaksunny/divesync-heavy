@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260705-015307",
+    "control-mode": "manual",
+    "requested-duration": 10000.0,
+    "actual-duration": 41.099045515060425,
+    "start-time": 1783234405.0990367,
+    "start-time-readable": "2026-07-05 01:53:25",
+    "notes": "manual test with added sysid infrastructure"
+}

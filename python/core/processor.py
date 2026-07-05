@@ -2,12 +2,9 @@
 # format: time_s, actuator_mm, actuator_setpoint_mm, depth_filtered_m, depth_setpoint_m, motor_cmd
 
 class Processor:
-    def __init__(self, setpoints_needed, stroke):
+    def __init__(self, stroke):
         self._window = []
         self._LIMIT = 15
-
-        # Do not log outer setpoints if not needed (e.g. manual mode)
-        self._setpoints = setpoints_needed
 
         self._stroke = stroke
 
@@ -35,10 +32,8 @@ class Processor:
         self.actuator_mm = round(tel.actuator_raw * self._stroke / 4095, 3)
 
         # Update setpoints
-        if self._setpoints:
-            self.depth_setpoint_m = depth_setpoint_m
-        
         self.actuator_setpoint_mm = actuator_setpoint_mm
+        self.depth_setpoint_m = depth_setpoint_m 
 
         # Update time
         self.time_s = tel.time_ms / 1000

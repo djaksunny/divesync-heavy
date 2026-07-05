@@ -2,7 +2,7 @@
 
 import time
 
-class SquareWaveGenerator:
+class SquareWaveController:
     def __init__(self, low, high, period):
         self._low = low
         self._high = high
@@ -11,7 +11,7 @@ class SquareWaveGenerator:
         self._last_switch = time.time()
         self._is_high = True # default high
 
-    def value(self):
+    def get_command(self):
         if time.time() - self._last_switch >= self._period / 2:
             self._is_high = not self._is_high
             self._last_switch = time.time()
