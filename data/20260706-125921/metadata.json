@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260706-125921",
+    "control-mode": "sysid",
+    "requested-duration": 60.0,
+    "actual-duration": 60.007131814956665,
+    "start-time": 1783360766.0374098,
+    "start-time-readable": "2026-07-06 12:59:26",
+    "notes": null
+}
