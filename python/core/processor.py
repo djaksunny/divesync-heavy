@@ -9,7 +9,7 @@ class Processor:
         self._stroke = stroke
 
         self.time_s = None
-        self.depth_filtered_m = None
+        self.depth_filtered_m = 0.0
         self.actuator_setpoint_mm = None
         self.actuator_mm = None
         self.depth_setpoint_m = None
