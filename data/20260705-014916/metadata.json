@@ -1,9 +1,0 @@
-{
-    "experiment-id": "20260705-014916",
-    "control-mode": "sysid",
-    "requested-duration": 20.0,
-    "actual-duration": 20.04005193710327,
-    "start-time": 1783234168.6565769,
-    "start-time-readable": "2026-07-05 01:49:28",
-    "notes": "sysid full test"
-}
