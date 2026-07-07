@@ -1,5 +1,25 @@
 import tkinter as tk
 
+# --- Palette -----------------------------------------------------------
+BG = "#0b0f14"          # window background
+CARD_BG = "#121821"     # card background
+BORDER = "#1f2a37"      # card border / dividers
+FG_MUTED = "#5b6b7d"    # labels / captions
+FG_PRIMARY = "#e6edf3"  # main readout values
+ACCENT = "#3ba7ff"      # depth accent
+ACCENT_2 = "#8b5cf6"    # setpoint accent
+OK = "#2ecc71"          # error small -> good
+WARN = "#f5b942"        # error medium -> caution
+BAD = "#ff5d5d"         # error large -> off target
+
+MONO = ("Consolas", 30, "bold")
+MONO_SMALL = ("Consolas", 12)
+LABEL_FONT = ("Segoe UI", 11, "bold")
+TITLE_FONT = ("Segoe UI", 13, "bold")
+
+ERROR_WARN_THRESHOLD = 0.5   # meters
+ERROR_BAD_THRESHOLD = 1.5    # meters
+
 
 class DepthDisplay:
     def __init__(self):
@@ -7,32 +27,76 @@ class DepthDisplay:
 
         self.root = tk.Tk()
         self.root.title("DiveSync Heavy Depth Control")
+        self.root.configure(bg=BG)
+        self.root.resizable(False, False)
 
-        self.depth_label = tk.Label(
-            self.root,
-            text="Depth: --- m",
-            font=("Arial", 24)
-        )
-        self.depth_label.pack(padx=20, pady=10)
+        # ---- Header ----
+        header = tk.Frame(self.root, bg=BG)
+        header.pack(fill="x", padx=20, pady=(18, 6))
 
-        self.setpoint_label = tk.Label(
-            self.root,
-            text="Setpoint: --- m",
-            font=("Arial", 24)
-        )
-        self.setpoint_label.pack(padx=20, pady=10)
+        tk.Label(
+            header, text="DIVESYNC", font=TITLE_FONT, bg=BG, fg=FG_PRIMARY
+        ).pack(side="left")
+        tk.Label(
+            header, text="  •  DEPTH CONTROL", font=("Segoe UI", 13),
+            bg=BG, fg=FG_MUTED
+        ).pack(side="left")
 
-        self.error_label = tk.Label(
-            self.root,
-            text="Error: --- m",
-            font=("Arial", 24)
+        self.status_dot = tk.Canvas(
+            header, width=12, height=12, bg=BG, highlightthickness=0
         )
-        self.error_label.pack(padx=20, pady=10)
+        self.status_dot.pack(side="right", pady=2)
+        self._dot_id = self.status_dot.create_oval(1, 1, 11, 11, fill=OK, outline="")
+
+        # ---- Body: three cards ----
+        body = tk.Frame(self.root, bg=BG)
+        body.pack(padx=20, pady=(6, 20))
+
+        self.depth_value = self._make_card(
+            body, col=0, title="DEPTH", unit="m", accent=ACCENT
+        )
+        self.setpoint_value = self._make_card(
+            body, col=1, title="SETPOINT", unit="m", accent=ACCENT_2
+        )
+        self.error_value = self._make_card(
+            body, col=2, title="ERROR", unit="m", accent=FG_PRIMARY
+        )
 
         self.root.protocol("WM_DELETE_WINDOW", self._close)
 
         # draw window once
         self.root.update()
+
+    def _make_card(self, parent, col, title, unit, accent):
+        card = tk.Frame(
+            parent, bg=CARD_BG, highlightbackground=BORDER,
+            highlightthickness=1, bd=0
+        )
+        card.grid(row=0, column=col, padx=6)
+
+        inner = tk.Frame(card, bg=CARD_BG)
+        inner.pack(padx=22, pady=16)
+
+        # accent tick
+        tk.Frame(inner, bg=accent, width=28, height=3).pack(anchor="w", pady=(0, 8))
+
+        tk.Label(
+            inner, text=title, font=LABEL_FONT, bg=CARD_BG, fg=FG_MUTED
+        ).pack(anchor="w")
+
+        value_row = tk.Frame(inner, bg=CARD_BG)
+        value_row.pack(anchor="w", pady=(2, 0))
+
+        value_label = tk.Label(
+            value_row, text="---", font=MONO, bg=CARD_BG, fg=FG_PRIMARY
+        )
+        value_label.pack(side="left")
+
+        tk.Label(
+            value_row, text=f" {unit}", font=MONO_SMALL, bg=CARD_BG, fg=FG_MUTED
+        ).pack(side="left", padx=(4, 0), pady=(14, 0))
+
+        return value_label
 
     def _close(self):
         self.closed = True
@@ -45,23 +109,34 @@ class DepthDisplay:
         # process pending tkinter events
         self.root.update()
 
+        # the window may have been closed by the user during the
+        # update() call above (WM_DELETE_WINDOW fires from here) —
+        # bail out before touching any now-destroyed widgets
+        if self.closed:
+            return
+
         if depth is not None:
-            self.depth_label.config(
-                text=f"Depth: {depth:.3f} m"
-            )
+            self.depth_value.config(text=f"{depth:.3f}")
 
         if setpoint is not None:
-            self.setpoint_label.config(
-                text=f"Setpoint: {setpoint:.3f} m"
-            )
+            self.setpoint_value.config(text=f"{setpoint:.3f}")
 
         if depth is not None and setpoint is not None:
             error = setpoint - depth
-            self.error_label.config(
-                text=f"Error: {error:.3f} m"
-            )
+            self.error_value.config(text=f"{error:+.3f}")
+
+            abs_err = abs(error)
+            if abs_err <= ERROR_WARN_THRESHOLD:
+                color = OK
+            elif abs_err <= ERROR_BAD_THRESHOLD:
+                color = WARN
+            else:
+                color = BAD
+            self.error_value.config(fg=color)
+            self.status_dot.itemconfig(self._dot_id, fill=color)
         else:
-            self.error_label.config(text="Error: --- m")
+            self.error_value.config(text="---", fg=FG_PRIMARY)
+            self.status_dot.itemconfig(self._dot_id, fill=FG_MUTED)
 
         self.root.update_idletasks()
 
@@ -69,3 +144,17 @@ class DepthDisplay:
         if not self.closed:
             self.closed = True
             self.root.destroy()
+
+
+if __name__ == "__main__":
+    import math
+    import time
+
+    disp = DepthDisplay()
+    t = 0.0
+    while not disp.closed:
+        depth = 10 + 3 * math.sin(t)
+        setpoint = 10.0
+        disp.update(depth, setpoint)
+        time.sleep(0.05)
+        t += 0.05
