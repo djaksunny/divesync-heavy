@@ -4,6 +4,7 @@ from core.serial_manager import SerialManager
 from core.logger import Logger
 from core.telemetry import Telemetry
 from core.processor import Processor
+from core.state import State
 
 # Controllers
 from controllers.manual import ManualController
@@ -35,11 +36,11 @@ ser = SerialManager(exp.com_port)
 log = Logger(exp.get_folder_path())
 tel = Telemetry()
 pro = Processor(ACTUATOR_STROKE)
+sta = State()
 ddp = DepthDisplay()
 
 inn = InnerPIDController((4, 1.2, 0.3), 130)
 depth_wave = None
-depth_setpoint = None
 
 match exp.mode:
     case "manual":
@@ -68,7 +69,7 @@ try:
         if not exp.is_running():
             break
 
-        ddp.update(pro.depth_filtered_m, depth_setpoint)
+        ddp.update(pro.depth_filtered_m, sta.depth_setpoint_m)
 
         if ddp.closed:
             print("\n[DISPLAY CLOSED] Aborting experiment\n")
@@ -84,22 +85,33 @@ try:
 
         tel.update(line)
 
-        if isinstance(con, (SquareWaveController)):
-            current_setpoint = con.get_command()
-            pro.process(tel, current_setpoint, None)
-        elif isinstance(con, ManualController):
-            current_setpoint = con.get_command()
+        # Phase 1: filter depth / convert actuator units (no controller output needed yet)
+        pro.process_depth(tel)
+
+        # Determine this tick's depth setpoint (independent of controller's action)
+        if isinstance(con, ManualController):
             depth_setpoint = con.depth_target
-            pro.process(tel, current_setpoint, depth_setpoint)
+        elif depth_wave is not None:
+            depth_setpoint = depth_wave.get_command()
         else:
-            depth_setpoint   = depth_wave.get_command()
-            current_setpoint = con.get_command(pro.depth_filtered_m or 0.0, depth_setpoint)
-            pro.process(tel, current_setpoint, depth_setpoint)
+            depth_setpoint = None  # sysid mode has no depth setpoint concept
+
+        pro.depth_setpoint_m = depth_setpoint
+
+        # Phase 2: update state now that depth + setpoint are both known
+        sta.update(pro)
+
+        # Phase 3: controller reads state, returns actuator setpoint
+        current_setpoint = con.get_command(sta)
+
+        # Phase 4: finalize processed record / csv
+        pro.process_actuator(current_setpoint, depth_setpoint)
 
         ddp.update(pro.depth_filtered_m, depth_setpoint)
 
         log.write_raw(tel)
         log.write_processed(pro)
+        log.write_state(sta)
 
         try:
             cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm)
@@ -126,6 +138,8 @@ finally:
 
     ddp.close()
     log.close_raw()
+    log.close_processed()
+    log.close_state()
     ser.close()
 
     print(f"Saved experiment in: {exp.get_folder_path()}")

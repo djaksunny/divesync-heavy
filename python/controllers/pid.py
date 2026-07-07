@@ -9,7 +9,7 @@ class PIDController:
         self._pid.output_limits = (-self._equilibrium, self._stroke-self._equilibrium)
         self._pid.sample_time = 0.05
 
-    def get_command(self, depth_m, depth_setpoint_m):
-        self._pid.setpoint = depth_setpoint_m
-        cmd = self._pid(depth_m)
+    def get_command(self, state):
+        self._pid.setpoint = state.depth_setpoint_m
+        cmd = self._pid(state.depth_m)
         return cmd + self._equilibrium
