@@ -1,3 +1,5 @@
+import ctypes
+import sys
 import tkinter as tk
 
 # --- Palette -----------------------------------------------------------
@@ -64,8 +66,36 @@ class DepthDisplay:
 
         self.root.protocol("WM_DELETE_WINDOW", self._close)
 
+        self.root.update()
+
+        self._enable_dark_titlebar(self.root)
+
         # draw window once
         self.root.update()
+
+    @staticmethod
+    def _enable_dark_titlebar(window):
+        if sys.platform != "win32":
+            return
+        try:
+            window.update_idletasks()
+            
+            # 1. Get the actual outer window frame managed by the OS
+            hwnd = ctypes.windll.user32.GetParent(window.winfo_id())
+            
+            # 2. Use 2 (True) - Some Windows 10 versions require 2 instead of 1
+            value = ctypes.c_int(2)
+            
+            # 20 = DWMWA_USE_IMMERSIVE_DARK_MODE (Windows 11 and newer Win 10)
+            # 19 = DWMWA_USE_IMMERSIVE_DARK_MODE (Older Win 10)
+            for attribute in (20, 19):
+                result = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, attribute, ctypes.byref(value), ctypes.sizeof(value)
+                )
+                if result == 0:
+                    break
+        except Exception:
+            pass
 
     def _make_card(self, parent, col, title, unit, accent):
         card = tk.Frame(
