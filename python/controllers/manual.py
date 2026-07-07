@@ -12,9 +12,10 @@ class ManualController:
         self._stroke = stroke
         self.actuator_equilibrium = actuator_equilibrium
 
-        self.depth_target = random.uniform(0.2, 0.8)
+        self.depth_target = round(random.uniform(0.2, 0.8), 4)
 
-    def get_command(self):
+    def get_command(self, state=None):
+        # state unused here, but kept for unified interface across controllers
         pygame.event.pump()
 
         axis = self._joystick.get_axis(1)

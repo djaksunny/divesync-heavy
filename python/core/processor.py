@@ -15,7 +15,7 @@ class Processor:
         self.depth_setpoint_m = None
         self.processed_csv = None
 
-    def process(self, tel, actuator_setpoint_mm, depth_setpoint_m=None):
+    def process_depth(self, tel):
         # Update window
         self._window.append(tel.depth_m)
 
@@ -28,15 +28,24 @@ class Processor:
         mid = len(sorted_window) // 2
         self.depth_filtered_m = sorted_window[mid]
 
-        # Actuator units conversion
+        # Actuator units conversion (doesn't depend on controller output)
         self.actuator_mm = round(tel.actuator_raw * self._stroke / 4095, 3)
-
-        # Update setpoints
-        self.actuator_setpoint_mm = actuator_setpoint_mm
-        self.depth_setpoint_m = depth_setpoint_m 
 
         # Update time
         self.time_s = tel.time_ms / 1000
 
+        # Stash tel for use in process_actuator (need motor_cmd for csv)
+        self._tel = tel
+
+    def process_actuator(self, actuator_setpoint_mm, depth_setpoint_m=None):
+        # Update setpoints
+        self.actuator_setpoint_mm = actuator_setpoint_mm
+        self.depth_setpoint_m = depth_setpoint_m
+
         # Saves CSV for logger
-        self.processed_csv = f"{self.time_s},{self.actuator_mm},{self.actuator_setpoint_mm},{self.depth_filtered_m},{self.depth_setpoint_m},{tel.motor_cmd}"
+        self.processed_csv = f"{self.time_s},{self.actuator_mm},{self.actuator_setpoint_mm},{self.depth_filtered_m},{self.depth_setpoint_m},{self._tel.motor_cmd}"
+
+    def process(self, tel, actuator_setpoint_mm, depth_setpoint_m=None):
+        # Kept for backward compatibility if anything still calls the old single-shot method
+        self.process_depth(tel)
+        self.process_actuator(actuator_setpoint_mm, depth_setpoint_m)
