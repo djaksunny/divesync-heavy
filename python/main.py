@@ -1,5 +1,3 @@
-import random
-
 # Core
 from core.experiment import Experiment
 from core.serial_manager import SerialManager

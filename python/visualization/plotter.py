@@ -41,7 +41,7 @@ class Plotter:
 
     # format: time_s, depth_filtered_m, depth_setpoint_m, actuator_mm, actuator_setpoint_mm, motor_cmd
     def plot(self):
-        fig, axes = plt.subplots(3, 1, sharex=True)
+        fig, axes = plt.subplots(3, 1, sharex=True, figsize=(11, 8.5), dpi=100)
         fig.subplots_adjust(hspace=0.25)
 
         fig.suptitle(
