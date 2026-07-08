@@ -25,7 +25,7 @@ class Merger:
         # Only pull actuator/motor fields from processed -- state stays the
         # source of truth for depth/error/velocity (what a live policy sees).
         merged = state.merge(
-            proc[["time_s", "actuator_mm", "actuator_setpoint_mm", "motor_cmd"]],
+            proc[["time_s", "actuator_setpoint_mm"]],
             on="time_s",
             how="inner"
         )

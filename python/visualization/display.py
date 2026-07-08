@@ -1,4 +1,6 @@
 import tkinter as tk
+import ctypes
+import sys
 
 # --- Palette -----------------------------------------------------------
 BG = "#0b0f14"          # window background
@@ -29,6 +31,9 @@ class DepthDisplay:
         self.root.title("DiveSync Heavy Depth Control")
         self.root.configure(bg=BG)
         self.root.resizable(False, False)
+
+        # Apply dark mode theme to the main window title bar
+        self._enable_dark_titlebar(self.root)
 
         # ---- Header ----
         header = tk.Frame(self.root, bg=BG)
@@ -66,6 +71,29 @@ class DepthDisplay:
 
         # draw window once
         self.root.update()
+
+    @staticmethod
+    def _enable_dark_titlebar(window):
+        if sys.platform != "win32":
+            return
+        try:
+            window.update_idletasks()
+            # Get the correct parent window handle (HWND) for the top-level Tk window
+            hwnd = ctypes.windll.user32.GetParent(window.winfo_id())
+            
+            # DWMWA_USE_IMMERSIVE_DARK_MODE attribute ID
+            # 20 works for Windows 10 (20H1+) and Windows 11. 19 is for older Win10 builds.
+            rendering_policy = ctypes.c_int(1)
+            
+            for attribute in (20, 19):
+                result = ctypes.windll.dwmapi.DwmSetWindowAttribute(
+                    hwnd, attribute, ctypes.byref(rendering_policy), ctypes.sizeof(rendering_policy)
+                )
+                if result == 0:
+                    break
+        except Exception:
+            # Fallback cleanly if OS calls are unavailable
+            pass
 
     def _make_card(self, parent, col, title, unit, accent):
         card = tk.Frame(
@@ -153,8 +181,8 @@ if __name__ == "__main__":
     disp = DepthDisplay()
     t = 0.0
     while not disp.closed:
-        depth = 10 + 3 * math.sin(t)
-        setpoint = 10.0
+        depth = 0.5 + 0.2 * math.sin(5 * t)
+        setpoint = 0.5 + 0.2 * math.cos(2 * t)
         disp.update(depth, setpoint)
         time.sleep(0.05)
         t += 0.05
