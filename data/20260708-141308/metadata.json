@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260708-141308",
+    "control-mode": "manual",
+    "requested-duration": 1000.0,
+    "actual-duration": 34.72586464881897,
+    "start-time": 1783537995.8103874,
+    "start-time-readable": "2026-07-08 14:13:15",
+    "notes": "human control"
+}

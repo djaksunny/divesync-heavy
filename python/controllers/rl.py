@@ -1,6 +1,8 @@
 class RLController:
-    def __init__(self, stroke, equilibrium, gains):
-        pass
 
-    def get_command(self, depth_m, depth_setpoint_m):
-        pass
+    def __init__(self, model_path):
+        self.model = load_model(model_path)
+
+    def get_command(self, state):
+        prediction = self.model(state)
+        return prediction
