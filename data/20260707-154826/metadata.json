@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260707-154826",
+    "control-mode": "manual",
+    "requested-duration": 300.0,
+    "actual-duration": 113.58299422264099,
+    "start-time": 1783457319.2770517,
+    "start-time-readable": "2026-07-07 15:48:39",
+    "notes": "system response test, setpoint void"
+}

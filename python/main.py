@@ -2,6 +2,7 @@
 from core.experiment import Experiment
 from core.serial_manager import SerialManager
 from core.logger import Logger
+from core.merger import Merger
 from core.telemetry import Telemetry
 from core.processor import Processor
 from core.state import State
@@ -148,3 +149,9 @@ finally:
     if os.path.exists(f"{exp.get_folder_path()}/processed.csv"):
         vis = Plotter(exp.get_folder_path())
         vis.plot()
+
+    try:
+        mer = Merger(exp.get_folder_path())
+        mer.merge()
+    except FileNotFoundError as e:
+        print(f"[MERGE SKIPPED] {e}")

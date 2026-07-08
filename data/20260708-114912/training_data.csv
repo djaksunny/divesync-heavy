@@ -1,0 +1,2 @@
+time_s,depth_m,depth_setpoint_m,depth_error_m,velocity_mps,actuator_mm,actuator_setpoint_mm,motor_cmd
+0.348,0.6788,0.2032,-0.4756,0.0,19.646,20.0,0

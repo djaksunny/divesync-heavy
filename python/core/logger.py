@@ -15,7 +15,7 @@ class Logger:
         # Setup state file
         self._state_path = f"{folder_path}/state.csv"
         self._state_file = open(self._state_path, "w")
-        self._state_file.write("time_s,depth_m,depth_setpoint_m,depth_error_m,self.velocity_mps\n")
+        self._state_file.write("time_s,depth_m,depth_setpoint_m,depth_error_m,velocity_mps\n")
 
     # Raw file write functions
     def write_raw(self, tel):
