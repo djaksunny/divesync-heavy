@@ -1,15 +1,9 @@
-# Steps for me
-# 1 Get data that BC needs -- done
-# 2 Turn data into i/o -- done
-# 3 Make neural network -- done
-# 4 Train network
-# 5 Save network
-
 import sys
 from pathlib import Path
 import json
 import pandas as pd
 import torch
+import joblib
 from sklearn.preprocessing import StandardScaler
 
 class BCModel(torch.nn.Module):
@@ -166,4 +160,6 @@ if __name__ == "__main__":
         if epoch % 100 == 0:
             print(f"Epoch {epoch}, Loss: {loss.item()}")
 
+    joblib.dump(X_scaler, "python/ml/x_scaler.pkl")
+    joblib.dump(y_scaler, "python/ml/y_scaler.pkl")
     torch.save(model.state_dict(), "python/ml/bc_model_weights.pt")

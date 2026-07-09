@@ -8,7 +8,6 @@ class State:
         self.depth_setpoint_m = 0.0
         self.depth_error_m = 0.0
         self.velocity_mps = 0.0
-        self.actuator_mm = 0.0
 
         self._last_time_s = None
         self._last_depth_m = None
@@ -22,7 +21,6 @@ class State:
         self.time_s = pro.time_s
         self.depth_m = pro.depth_filtered_m
         self.depth_setpoint_m = pro.depth_setpoint_m
-        self.actuator_mm = pro.actuator_mm
 
         # Calculate depth error
         self.depth_error_m = self.depth_setpoint_m - self.depth_m
