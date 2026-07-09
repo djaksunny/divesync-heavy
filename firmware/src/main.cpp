@@ -40,7 +40,7 @@
 // =========================
 #define ADC_MAX_COUNTS              4095.0f
 #define ADC_REF_VOLTAGE             3.3f
-#define BATT_DIVIDER_R_TOP_OHM      19976.0f
+#define BATT_DIVIDER_R_TOP_OHM      4700.0f
 #define BATT_DIVIDER_R_BOTTOM_OHM   1500.0f
 
 // =========================
