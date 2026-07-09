@@ -1,17 +1,39 @@
 # Steps for me
-# 1 Get data that BC needs
-# 2 Turn data into i/o
-# 3 Make neural network
+# 1 Get data that BC needs -- done
+# 2 Turn data into i/o -- done
+# 3 Make neural network -- done
 # 4 Train network
 # 5 Save network
 
-if __name__ == "__main__":
-    import sys
-    from pathlib import Path
-    import json
-    import pandas as pd
-    import torch
+import sys
+from pathlib import Path
+import json
+import pandas as pd
+import torch
+from sklearn.preprocessing import StandardScaler
 
+class BCModel(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+        self.layer1 = torch.nn.Linear(4, 16)
+        self.layer2 = torch.nn.Linear(16, 16)
+        self.layer3 = torch.nn.Linear(16, 1)
+
+    def forward(self, x):
+        x = self.layer1(x)
+
+        x = torch.relu(x)
+
+        x = self.layer2(x)
+
+        x = torch.relu(x)
+
+        x = self.layer3(x)
+
+        return x
+
+if __name__ == "__main__":
     # Map target path to relative directory
     data_dir = Path("data")
 
@@ -117,28 +139,31 @@ if __name__ == "__main__":
     ]]
 
     # Convert to tensors
-    X = torch.tensor(X.to_numpy(copy=True), dtype=torch.float32)
-    y = torch.tensor(y.to_numpy(copy=True), dtype=torch.float32)
+    X_scaler = StandardScaler()
+    y_scaler = StandardScaler()
 
-    print(data["depth_setpoint_m"].unique())
+    X_scaled = X_scaler.fit_transform(X)
+    y_scaled = y_scaler.fit_transform(y)
 
-class BCModel(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
+    X = torch.tensor(X_scaled, dtype=torch.float32)
+    y = torch.tensor(y_scaled, dtype=torch.float32)    
 
-        self.layer1 = torch.nn.Linear(4, 16)
-        self.layer2 = torch.nn.Linear(16, 16)
-        self.layer3 = torch.nn.Linear(16, 1)
+    model = BCModel()
+    model.load_state_dict(torch.load("python/ml/bc_model_weights.pt"))
+    loss_fn = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    def forward(self, x):
-        x = self.layer1(x)
+    epochs = 10000
 
-        x = torch.relu(x)
+    for epoch in range(epochs):
+        predictions = model(X)
+        loss = loss_fn(predictions, y)
 
-        x = self.layer2(x)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-        x = torch.relu(x)
+        if epoch % 100 == 0:
+            print(f"Epoch {epoch}, Loss: {loss.item()}")
 
-        x = self.layer3(x)
-
-        return x
+    torch.save(model.state_dict(), "python/ml/bc_model_weights.pt")
