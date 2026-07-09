@@ -10,6 +10,7 @@ from core.state import State
 # Controllers
 from controllers.manual import ManualController
 from controllers.pid import PIDController
+from controllers.rl import RLController
 from controllers.waveform import SquareWaveController
 from controllers.inner import InnerPIDController
 
@@ -49,6 +50,9 @@ match exp.mode:
     case "pid":
         con        = PIDController(ACTUATOR_STROKE, ACTUATOR_EQUILIBRIUM, (2, 1, 5))
         depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
+    case "rl":
+        con = RLController(ACTUATOR_STROKE)
+        depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
     case "sysid":
         con = SquareWaveController(5, 45, 20)
     case _:
@@ -69,8 +73,6 @@ try:
     while True:
         if not exp.is_running():
             break
-
-        ddp.update(pro.depth_filtered_m, sta.depth_setpoint_m)
 
         if ddp.closed:
             print("\n[DISPLAY CLOSED] Aborting experiment\n")
