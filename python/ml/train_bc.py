@@ -10,9 +10,9 @@ class BCModel(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-        self.layer1 = torch.nn.Linear(4, 16)
-        self.layer2 = torch.nn.Linear(16, 16)
-        self.layer3 = torch.nn.Linear(16, 1)
+        self.layer1 = torch.nn.Linear(4, 64)
+        self.layer2 = torch.nn.Linear(64, 64)
+        self.layer3 = torch.nn.Linear(64, 1)
 
     def forward(self, x):
         x = self.layer1(x)
@@ -143,11 +143,10 @@ if __name__ == "__main__":
     y = torch.tensor(y_scaled, dtype=torch.float32)    
 
     model = BCModel()
-    model.load_state_dict(torch.load("python/ml/bc_model_weights.pt"))
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    epochs = 10000
+    epochs = 30000
 
     for epoch in range(epochs):
         predictions = model(X)
