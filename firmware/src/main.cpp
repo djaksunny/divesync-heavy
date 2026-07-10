@@ -16,7 +16,7 @@
 // Actuator limits
 // =========================
 #define SYG_MAX 4050        // Safe upper travel limit
-#define SYG_MIN 50          // Safe lower travel limit
+#define SYG_MIN 250         // Safe lower travel limit
 
 // =========================
 // PWM settings (LEDC)

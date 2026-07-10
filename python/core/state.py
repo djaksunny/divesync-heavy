@@ -17,16 +17,24 @@ class State:
 
         self.state_csv = None
 
+    @staticmethod
+    def _fmt(x, digits=4):
+        """Format a value for CSV, safely handling None."""
+        return f"{round(x, digits)}" if x is not None else ""
+
     def update(self, pro):
         self.time_s = pro.time_s
         self.depth_m = pro.depth_filtered_m
         self.depth_setpoint_m = pro.depth_setpoint_m
 
-        # Calculate depth error
-        self.depth_error_m = self.depth_setpoint_m - self.depth_m
+        # Calculate depth error (only if we have both a setpoint and a depth reading)
+        if self.depth_setpoint_m is not None and self.depth_m is not None:
+            self.depth_error_m = self.depth_setpoint_m - self.depth_m
+        else:
+            self.depth_error_m = None
 
         # Calculate raw vertical velocity
-        if self._last_time_s is None:
+        if self._last_time_s is None or self.depth_m is None or self._last_depth_m is None:
             velocity_raw = 0.0
         else:
             dt = self.time_s - self._last_time_s
@@ -50,4 +58,10 @@ class State:
         self._last_time_s = self.time_s
         self._last_depth_m = self.depth_m
 
-        self.state_csv = f"{round(self.time_s, 3)},{round(self.depth_m, 4)},{round(self.depth_setpoint_m, 4)},{round(self.depth_error_m, 4)},{round(self.velocity_mps, 4)}"
+        self.state_csv = (
+            f"{self._fmt(self.time_s, 3)},"
+            f"{self._fmt(self.depth_m)},"
+            f"{self._fmt(self.depth_setpoint_m)},"
+            f"{self._fmt(self.depth_error_m)},"
+            f"{self._fmt(self.velocity_mps)}"
+        )

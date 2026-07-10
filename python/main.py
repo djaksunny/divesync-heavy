@@ -20,8 +20,8 @@ from visualization.display import DepthDisplay
 
 # Config
 BATTERY_CUTOFF_V      = 10.0
-ACTUATOR_STROKE       = 50.0
-ACTUATOR_EQUILIBRIUM  = 20.0
+ACTUATOR_STROKE       = 100.0
+ACTUATOR_EQUILIBRIUM  = 50.0
 DEPTH_WAVE_LOW        = 0.5
 DEPTH_WAVE_HIGH       = 0.5
 DEPTH_WAVE_PERIOD     = 20.0
@@ -41,7 +41,7 @@ pro = Processor(ACTUATOR_STROKE)
 sta = State()
 ddp = DepthDisplay()
 
-inn = InnerPIDController((4, 1.2, 0.3), 130)
+inn = InnerPIDController((2, 0, 0), 150)
 depth_wave = None
 
 match exp.mode:
@@ -54,7 +54,7 @@ match exp.mode:
         con = RLController(ACTUATOR_STROKE)
         depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
     case "sysid":
-        con = SquareWaveController(5, 45, 20)
+        con = SquareWaveController(20, 80, 20)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
@@ -121,11 +121,6 @@ try:
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
-
-        if tel.battery_v is not None and tel.battery_v <= BATTERY_CUTOFF_V:
-            print("\n[SAFETY STOP] Battery below threshold\n")
-            exp.abort()
-            break
 
 except KeyboardInterrupt:
     print("\n[CTRL+C] Aborting experiment\n")

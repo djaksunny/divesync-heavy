@@ -13,6 +13,7 @@ class Processor:
         self.actuator_setpoint_mm = None
         self.actuator_mm = None
         self.depth_setpoint_m = None
+        self.motor_cmd = None
         self.processed_csv = None
 
     def process_depth(self, tel):
@@ -41,9 +42,10 @@ class Processor:
         # Update setpoints
         self.actuator_setpoint_mm = actuator_setpoint_mm
         self.depth_setpoint_m = depth_setpoint_m
+        self.motor_cmd = self._tel.motor_cmd * 12 / 255
 
         # Saves CSV for logger
-        self.processed_csv = f"{self.time_s},{self.actuator_mm},{self.actuator_setpoint_mm},{self.depth_filtered_m},{self.depth_setpoint_m},{self._tel.motor_cmd}"
+        self.processed_csv = f"{self.time_s},{self.actuator_mm},{self.actuator_setpoint_mm},{self.depth_filtered_m},{self.depth_setpoint_m},{self.motor_cmd}"
 
     def process(self, tel, actuator_setpoint_mm, depth_setpoint_m=None):
         # Kept for backward compatibility if anything still calls the old single-shot method

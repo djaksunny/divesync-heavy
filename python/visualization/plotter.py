@@ -73,10 +73,10 @@ class Plotter:
 
         # PWM plot (plot 3)
         pwm = self._df["motor_cmd"]
-        axes[2].plot(time, pwm, label="PWM", color=OK, linewidth=1.8)
+        axes[2].plot(time, pwm, label="Motor Voltage (V)", color=OK, linewidth=1.8)
         axes[2].legend(loc="upper right", framealpha=0.9)
         axes[2].grid(True, alpha=0.6)
-        axes[2].set_title("MOTOR CMD", loc="left", fontsize=11, fontweight="bold", color=FG_MUTED, pad=8)
+        axes[2].set_title("MOTOR VOLTAGE", loc="left", fontsize=11, fontweight="bold", color=FG_MUTED, pad=8)
 
         axes[2].set_xlabel("Time (s)", color=FG_MUTED, fontsize=11, fontweight="bold")
 

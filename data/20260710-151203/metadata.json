@@ -1,0 +1,9 @@
+{
+    "experiment-id": "20260710-151203",
+    "control-mode": "rl",
+    "requested-duration": 1000.0,
+    "actual-duration": 119.95470070838928,
+    "start-time": 1783714332.758171,
+    "start-time-readable": "2026-07-10 15:12:12",
+    "notes": "bc test"
+}
