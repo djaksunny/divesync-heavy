@@ -22,8 +22,8 @@ from visualization.display import DepthDisplay
 BATTERY_CUTOFF_V      = 10.0
 ACTUATOR_STROKE       = 100.0
 ACTUATOR_EQUILIBRIUM  = 50.0
-DEPTH_WAVE_LOW        = 0.5
-DEPTH_WAVE_HIGH       = 0.5
+DEPTH_WAVE_LOW        = 0.7
+DEPTH_WAVE_HIGH       = 0.7
 DEPTH_WAVE_PERIOD     = 20.0
 
 # Setup
