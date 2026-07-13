@@ -1,50 +1,106 @@
-# Placeholder BC before full online RL
-
-import torch
+import os
+import numpy as np
 import joblib
-import pandas as pd
-from ml.train_bc import BCModel
+from stable_baselines3 import TD3
+
+from ml.reward import compute_reward
+from ml.td3_env_spec import DiveSyncEnvSpec
+
 
 class RLController:
-
-    def __init__(self, stroke, model_path="python/ml/bc_model_weights.pt"):
-        self.model = BCModel()
-        self.model.load_state_dict(torch.load(model_path))
-
-        self.model.eval()
-
-        self._x_scaler = joblib.load("python/ml/x_scaler.pkl")
-        self._y_scaler = joblib.load("python/ml/y_scaler.pkl")
-
+    def __init__(self, stroke, w1=1.0, w2=0.1, w3=2.0, tau=0.3,
+                 exploration_sigma=0.1, gradient_steps=200, batch_size=100,
+                 model_dir="python/ml"):
         self._stroke = float(stroke)
+        self._w1, self._w2, self._w3, self._tau = w1, w2, w3, tau
+        self._exploration_sigma = exploration_sigma
+        self._gradient_steps = gradient_steps
+        self._batch_size = batch_size
+
+        self._model_path = f"{model_dir}/td3_model"
+        self._buffer_path = f"{model_dir}/td3_replay_buffer.pkl"
+        self._warmstart_path = f"{model_dir}/td3_warmstart"
+
+        env = DiveSyncEnvSpec(stroke)
+
+        if os.path.exists(self._model_path + ".zip"):
+            self.model = TD3.load(self._model_path, env=env)
+            if os.path.exists(self._buffer_path):
+                self.model.load_replay_buffer(self._buffer_path)
+            print("[RL] Loaded existing TD3 model + replay buffer")
+        else:
+            self.model = TD3.load(self._warmstart_path, env=env)
+            print("[RL] Loaded BC warm-start TD3 model (first RL dive)")
+
+        from stable_baselines3.common.logger import configure
+        self.model.set_logger(configure(None, []))
+
+        self._prev_state_vec = None
+        self._prev_action_norm = None
+
+    @staticmethod
+    def _state_to_array(state):
+        return np.array([
+            state.depth_m,
+            state.depth_setpoint_m,
+            state.depth_error_m,
+            state.velocity_mps,
+        ], dtype=np.float32)
 
     def get_command(self, state):
-        raw_state = pd.DataFrame([{
-            "depth_m": state.depth_m,
-            "depth_setpoint_m": state.depth_setpoint_m,
-            "depth_error_m": state.depth_error_m,
-            "velocity_mps": state.velocity_mps,
-        }])
+        state_vec = self._state_to_array(state)
 
-        scaled_state = self._x_scaler.transform(raw_state)
-        state_tensor = torch.tensor(scaled_state, dtype=torch.float32)
-
-        with torch.no_grad():
-            prediction = self.model(state_tensor)
-            
-            prediction_mm = self._y_scaler.inverse_transform(
-                prediction.numpy()
+        if self._prev_state_vec is not None:
+            reward = compute_reward(state, self._w1, self._w2, self._w3, self._tau)
+            self.model.replay_buffer.add(
+                self._prev_state_vec.reshape(1, -1),
+                state_vec.reshape(1, -1),
+                self._prev_action_norm.reshape(1, -1),
+                np.array([reward], dtype=np.float32),
+                np.array([False]),
+                [{}],
             )
 
-            prediction_mm = float(prediction_mm[0, 0])
-            
-            prediction_mm = max(0.0, min(self._stroke, prediction_mm))
+        import torch
+        state_tensor = torch.tensor(state_vec.reshape(1, -1), dtype=torch.float32)
 
-            return prediction_mm
-        
-        print(
-    state.depth_m,
-    state.depth_setpoint_m,
-    state.depth_error_m,
-    prediction_mm
-)
+        with torch.no_grad():
+            normalized_action = self.model.policy.actor(state_tensor).numpy()[0]
+
+        noise = np.random.normal(0, self._exploration_sigma, size=normalized_action.shape).astype(np.float32)
+        normalized_action = np.clip(normalized_action + noise, -1.0, 1.0)
+
+        action_mm = self._stroke * (normalized_action[0] + 1.0) / 2.0
+        action_mm = float(max(0.0, min(self._stroke, action_mm)))
+
+        self._prev_state_vec = state_vec
+        self._prev_action_norm = normalized_action
+
+        return action_mm
+
+    def finalize(self, last_state=None):
+        if self._prev_state_vec is not None:
+            if last_state is not None:
+                final_vec = self._state_to_array(last_state)
+                reward = compute_reward(last_state, self._w1, self._w2, self._w3, self._tau)
+            else:
+                final_vec = self._prev_state_vec
+                reward = 0.0
+
+            self.model.replay_buffer.add(
+                self._prev_state_vec.reshape(1, -1),
+                final_vec.reshape(1, -1),
+                self._prev_action_norm.reshape(1, -1),
+                np.array([reward], dtype=np.float32),
+                np.array([True]),
+                [{}],
+            )
+
+        if self.model.replay_buffer.size() >= self._batch_size:
+            self.model.train(gradient_steps=self._gradient_steps, batch_size=self._batch_size)
+        else:
+            print("[RL] Not enough transitions yet to train — skipping update this dive")
+
+        self.model.save(self._model_path)
+        self.model.save_replay_buffer(self._buffer_path)
+        print(f"[RL] Saved model + buffer ({self.model.replay_buffer.size()} transitions)")
