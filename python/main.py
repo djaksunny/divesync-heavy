@@ -140,6 +140,9 @@ finally:
     log.close_state()
     ser.close()
 
+    if hasattr(con, "finalize"):
+        con.finalize(sta)
+
     print(f"Saved experiment in: {exp.get_folder_path()}")
 
     import os

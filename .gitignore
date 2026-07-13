@@ -8,6 +8,4 @@ __pycache__/
 python/controllers/manual_runner.py
 python/visualization/sysid_overlay.py
 
-eda/.history
-eda/FishCoreBoard_v3_3.kicad_prl
-eda/FishCoreBoard_v3_3-backups
+test_rl_dryrun.py
