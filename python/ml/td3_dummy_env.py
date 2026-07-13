@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-
+import stable_baselines3 as sb3
 
 class DummyEnv(gym.Env):
     def __init__(self):
@@ -31,3 +31,8 @@ class DummyEnv(gym.Env):
         truncated = False
         info = {}
         return obs, reward, terminated, truncated, info
+
+if __name__ == "__main__":
+    env = DummyEnv()
+    td3 = sb3.TD3("MlpPolicy", env)
+    td3.learn(total_timesteps=200)
