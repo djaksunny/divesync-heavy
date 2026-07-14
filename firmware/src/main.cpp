@@ -46,7 +46,7 @@
 // =========================
 // Fluid density
 // =========================
-const int FLUID_DENSITY = 997;  // kg/m^3 (fresh water)
+const int FLUID_DENSITY = 1000;  // kg/m^3
 
 // =========================
 // Global state
