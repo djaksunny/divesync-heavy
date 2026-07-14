@@ -5,5 +5,5 @@
     "actual-duration": 325.8306620121002,
     "start-time": 1784061443.614066,
     "start-time-readable": "2026-07-14 15:37:23",
-    "notes": "rl validation -- moving setpoint"
+    "notes": "rl validation -- variable setpoint"
 }
