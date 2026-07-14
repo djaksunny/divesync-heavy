@@ -1,3 +1,57 @@
+# DiveSync Heavy
+
+An autonomous underwater depth-control vehicle built around an ESP32 and MS5837 depth sensor, using a linear actuator syringe mechanism (0–100mm stroke) for buoyancy-based depth control. This repo contains the firmware, hardware design files, and control software — including PID, behavior cloning (BC), and reinforcement learning (TD3) controllers — developed as part of an undergraduate research project under Umar.
+
+## Hardware Overview
+
+- **Depth sensing:** MS5837 pressure/depth sensor
+- **Actuation:** Linear actuator-driven syringe mechanism, 0–100mm stroke, adjusts buoyancy by changing displaced volume
+- **Compute:** ESP32, communicating over USB serial (115200 baud) with a host machine running the Python control stack
+- **Control loop:** 20Hz telemetry/state/actuator loop, with an inner PID stabilizing actuator position and an outer controller (PID / BC / RL) setting the depth-tracking target
+
+Full schematics, PCB layout, and BOM are under `/eda`.
+
+## Repository Structure
+
+divesync-heavy/
+├── data/                     # Raw experiment logs, one folder per run (YYYYMMDD-HHMMSS)
+├── eda/                      # KiCad schematic, PCB, BOM, and exported schematic PDF
+├── firmware/                 # ESP32 firmware (PlatformIO project)
+├── python/
+│   ├── controllers/
+│   │   ├── inner.py           # Inner PID loop — actuator position control
+│   │   ├── manual.py          # Gamepad/keyboard manual control
+│   │   ├── pid.py             # Outer PID depth controller
+│   │   ├── rl.py              # TD3 (warm-started from BC) depth controller
+│   │   └── waveform.py        # Square-wave setpoint/actuator generator
+│   ├── core/
+│   │   ├── experiment.py      # Experiment setup, handshake, state machine
+│   │   ├── logger.py          # CSV logging (raw/processed/state)
+│   │   ├── merger.py          # Merges state + processed CSVs into training_data.csv
+│   │   ├── processor.py       # Depth filtering, actuator unit conversion
+│   │   ├── serial_manager.py  # Serial I/O with the ESP32
+│   │   ├── state.py           # Computes depth error, filtered velocity
+│   │   └── telemetry.py       # Raw serial line parsing
+│   ├── ml/
+│   │   ├── train_bc.py            # BC model architecture + training script
+│   │   ├── reward.py              # TD3 reward function
+│   │   ├── td3_env_spec.py        # Gym shape-declaration env for SB3
+│   │   ├── warmstart.py           # Converts trained BC weights into a TD3 actor
+│   │   ├── bc_model_weights.pt    # Trained BC weights
+│   │   ├── x_scaler.pkl / y_scaler.pkl   # BC input/output StandardScalers
+│   │   ├── td3_warmstart.zip      # BC-initialized TD3 model (fresh start point)
+│   │   ├── td3_model.zip          # Actively-training TD3 model (updated after each RL dive)
+│   │   └── td3_replay_buffer.pkl  # Persisted replay buffer across dives
+│   └── visualization/
+│       ├── display.py         # Live Tkinter depth/setpoint/error display
+│       └── plotter.py         # Post-dive matplotlib plotting (depth/actuator/motor voltage)
+├── results/
+│   ├── divesync-heavy-v1-results/   # Behavior cloning, cascaded PID, step response, sysid plots
+│   └── *.png                        # Comparison plots: BC, PID (fixed/variable), RL (fixed/variable)
+├── main.py                    # Experiment entry point / main control loop
+├── .gitignore
+└── README.md
+
 ## Control Strategies
 
 Three outer-loop control strategies were implemented and compared:
