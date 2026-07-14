@@ -19,8 +19,8 @@ MONO_SMALL = ("Consolas", 12)
 LABEL_FONT = ("Segoe UI", 11, "bold")
 TITLE_FONT = ("Segoe UI", 13, "bold")
 
-ERROR_WARN_THRESHOLD = 0.5   # meters
-ERROR_BAD_THRESHOLD = 1.5    # meters
+ERROR_WARN_THRESHOLD = 0.1   # meters
+ERROR_BAD_THRESHOLD = 0.3    # meters
 
 
 class DepthDisplay:
