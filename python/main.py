@@ -22,8 +22,8 @@ from visualization.display import DepthDisplay
 BATTERY_CUTOFF_V      = 10.0
 ACTUATOR_STROKE       = 100.0
 ACTUATOR_EQUILIBRIUM  = 50.0
-DEPTH_WAVE_LOW        = 0.7
-DEPTH_WAVE_HIGH       = 0.4
+DEPTH_WAVE_LOW        = 0.5
+DEPTH_WAVE_HIGH       = 0.5
 DEPTH_WAVE_PERIOD     = 100
 
 # Setup
@@ -41,7 +41,7 @@ pro = Processor(ACTUATOR_STROKE)
 sta = State()
 ddp = DepthDisplay()
 
-inn = InnerPIDController((2, 1, 0), 150)
+inn = InnerPIDController((1.2, 1.8, 0.05), 150)
 depth_wave = None
 
 match exp.mode:
