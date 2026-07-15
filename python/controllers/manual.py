@@ -1,5 +1,4 @@
 import pygame
-import random
 
 class ManualController:
     def __init__(self, stroke, actuator_equilibrium):
@@ -11,8 +10,6 @@ class ManualController:
 
         self._stroke = stroke
         self.actuator_equilibrium = actuator_equilibrium
-
-        self.depth_target = round(random.uniform(0.2, 0.8), 4)
 
         # Dummy reward
         self.reward = None
