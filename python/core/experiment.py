@@ -53,11 +53,23 @@ class Experiment:
         }
 
     def setup_experiment(self):
+        control_methods = ["manual", "pid", "rl"]
+
         while True:
-            self.mode = input("Control mode [manual / pid / rl / sysid]: ").strip().lower()
-            if self.mode in ["manual", "pid", "rl", "sysid"]:
+            user_input = input("Control mode [manual / pid / rl] or index [0 / 1 / 2]: ").strip().lower()            
+            if user_input in control_methods:
+                self.mode = user_input
                 self._config["control-mode"] = self.mode
-                break
+                break              
+            try:
+                index = int(user_input)
+                if 0 <= index < len(control_methods):
+                    self.mode = control_methods[index]
+                    self._config["control-mode"] = self.mode
+                    break
+            except ValueError:
+                pass
+                
             print("Invalid mode. Try again.")
 
         while True:

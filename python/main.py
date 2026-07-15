@@ -53,8 +53,6 @@ match exp.mode:
     case "rl":
         con = RLController(ACTUATOR_STROKE)
         depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
-    case "sysid":
-        con = SquareWaveController(20, 80, 20)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
