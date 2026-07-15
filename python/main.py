@@ -41,7 +41,7 @@ pro = Processor(ACTUATOR_STROKE)
 sta = State()
 ddp = DepthDisplay()
 
-inn = InnerPIDController((1.2, 1.8, 0.05), 150)
+inn = InnerPIDController((1, 1, 0.05), 150)
 depth_wave = None
 
 match exp.mode:
@@ -119,6 +119,15 @@ try:
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
+
+        # Safety: battery cutoff
+        if (
+            tel.battery_v is not None
+            and tel.battery_v <= BATTERY_CUTOFF_V
+        ):
+            print("\n[SAFETY STOP] Battery below threshold\n")
+            exp.abort()
+            break
 
 except KeyboardInterrupt:
     print("\n[CTRL+C] Aborting experiment\n")

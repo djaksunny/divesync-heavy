@@ -14,6 +14,9 @@ class ManualController:
 
         self.depth_target = round(random.uniform(0.2, 0.8), 4)
 
+        # Dummy reward
+        self.reward = None
+
     def get_command(self, state=None):
         # state unused here, but kept for unified interface across controllers
         pygame.event.pump()
