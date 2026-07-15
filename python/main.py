@@ -21,7 +21,7 @@ from visualization.display import DepthDisplay
 # Config
 BATTERY_CUTOFF_V      = 10.0
 ACTUATOR_STROKE       = 100.0
-ACTUATOR_EQUILIBRIUM  = 50.0
+ACTUATOR_EQUILIBRIUM  = 48.0
 DEPTH_LOW             = 0.2
 DEPTH_HIGH            = 0.7
 
@@ -41,7 +41,7 @@ sta = State()
 ddp = DepthDisplay()
 stp = SetpointGenerator(DEPTH_LOW, DEPTH_HIGH)
 
-inn = InnerPIDController((1, 1, 0.05), 150)
+inn = InnerPIDController((8, 0, 0), 150)
 
 match exp.mode:
     case "manual":
