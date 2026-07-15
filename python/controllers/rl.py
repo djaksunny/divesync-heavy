@@ -29,6 +29,9 @@ class RLController:
         self._train_every_n_ticks = train_every_n_ticks
         self._max_action_delta = max_action_delta
 
+        # Save reward
+        self.reward = None
+
         # RL decision timing
         self._decision_interval = decision_interval
         self._tick_count = 0
@@ -69,10 +72,10 @@ class RLController:
 
         # Store previous experience
         if self._prev_state_vec is not None:
-            reward = compute_reward(state, self._w1, self._w2, self._w3, self._tau, self._prev_action_delta, self._w4)
+            self.reward = compute_reward(state, self._w1, self._w2, self._w3, self._tau, self._prev_action_delta, self._w4)
             self.model.replay_buffer.add(
                 self._prev_state_vec.reshape(1, -1), scaled_state.reshape(1, -1),
-                self._prev_action_norm.reshape(1, -1), np.array([reward], dtype=np.float32),
+                self._prev_action_norm.reshape(1, -1), np.array([self.reward], dtype=np.float32),
                 np.array([False]), [{}]
             )
 
@@ -116,14 +119,14 @@ class RLController:
         if self._prev_state_vec is not None:
             if last_state is not None:
                 final_state = self._x_scaler.transform(self._state_to_array(last_state).reshape(1, -1))[0]
-                reward = compute_reward(last_state, self._w1, self._w2, self._w3, self._tau, self._prev_action_delta, self._w4)
+                self.reward = compute_reward(last_state, self._w1, self._w2, self._w3, self._tau, self._prev_action_delta, self._w4)
             else:
                 final_state = self._prev_state_vec
-                reward = 0.0
+                self.reward = 0.0
 
             self.model.replay_buffer.add(
                 self._prev_state_vec.reshape(1, -1), final_state.reshape(1, -1),
-                self._prev_action_norm.reshape(1, -1), np.array([reward], dtype=np.float32),
+                self._prev_action_norm.reshape(1, -1), np.array([self.reward], dtype=np.float32),
                 np.array([True]), [{}]
             )
 
