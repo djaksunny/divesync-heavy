@@ -6,12 +6,12 @@ from core.merger import Merger
 from core.telemetry import Telemetry
 from core.processor import Processor
 from core.state import State
+from core.setpoint import SetpointGenerator
 
 # Controllers
 from controllers.manual import ManualController
 from controllers.pid import PIDController
 from controllers.rl import RLController
-from controllers.waveform import SquareWaveController
 from controllers.inner import InnerPIDController
 
 # Visualization
@@ -22,9 +22,8 @@ from visualization.display import DepthDisplay
 BATTERY_CUTOFF_V      = 10.0
 ACTUATOR_STROKE       = 100.0
 ACTUATOR_EQUILIBRIUM  = 50.0
-DEPTH_WAVE_LOW        = 0.5
-DEPTH_WAVE_HIGH       = 0.5
-DEPTH_WAVE_PERIOD     = 100
+DEPTH_LOW             = 0.2
+DEPTH_HIGH            = 0.7
 
 # Setup
 exp = Experiment()
@@ -40,19 +39,17 @@ tel = Telemetry()
 pro = Processor(ACTUATOR_STROKE)
 sta = State()
 ddp = DepthDisplay()
+stp = SetpointGenerator(DEPTH_LOW, DEPTH_HIGH)
 
 inn = InnerPIDController((1, 1, 0.05), 150)
-depth_wave = None
 
 match exp.mode:
     case "manual":
         con = ManualController(ACTUATOR_STROKE, ACTUATOR_EQUILIBRIUM)
     case "pid":
-        con        = PIDController(ACTUATOR_STROKE, ACTUATOR_EQUILIBRIUM, (2, 1, 5))
-        depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
+        con = PIDController(ACTUATOR_STROKE, ACTUATOR_EQUILIBRIUM, (2, 1, 5))
     case "rl":
         con = RLController(ACTUATOR_STROKE)
-        depth_wave = SquareWaveController(DEPTH_WAVE_LOW, DEPTH_WAVE_HIGH, DEPTH_WAVE_PERIOD)
     case _:
         print("Invalid or unsupported controller mode")
         exit()
@@ -89,13 +86,7 @@ try:
         # Phase 1: filter depth / convert actuator units (no controller output needed yet)
         pro.process_depth(tel)
 
-        # Determine this tick's depth setpoint (independent of controller's action)
-        if isinstance(con, ManualController):
-            depth_setpoint = con.depth_target
-        elif depth_wave is not None:
-            depth_setpoint = depth_wave.get_command()
-        else:
-            depth_setpoint = None  # sysid mode has no depth setpoint concept
+        depth_setpoint = stp.get_setpoint()
 
         pro.depth_setpoint_m = depth_setpoint
 
