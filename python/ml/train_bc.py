@@ -146,7 +146,7 @@ if __name__ == "__main__":
     loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    epochs = 30000
+    epochs = 15000
 
     for epoch in range(epochs):
         predictions = model(X)
