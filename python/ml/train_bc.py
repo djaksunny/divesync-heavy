@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 metadata = json.load(f)
             
             # Check the control mode filter
-            if metadata.get("control-mode") == "manual":
+            if metadata.get("control-mode") == "pid":
                 folder_str = str(folder)
                 folder_list.append(folder_str)
                 # Store notes for display later
