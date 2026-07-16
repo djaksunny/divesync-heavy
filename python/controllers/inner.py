@@ -3,12 +3,11 @@ from simple_pid import PID
 class InnerPIDController:
     def __init__(self, gains, deadband=None):
         Kp, Ki, Kd = gains
-        if deadband:
-            self._deadband = deadband
-        else:
-            self._deadband = 0
+        self._deadband = deadband if deadband else 0
+        self._max_output = 255 - self._deadband
+
         self._pid = PID(Kp, Ki, Kd)
-        self._pid.output_limits = (-255+self._deadband, 255-self._deadband)
+        self._pid.output_limits = (-self._max_output, self._max_output)
         self._pid.sample_time = 0.05
 
     def get_command(self, actuator_mm, actuator_setpoint_mm):
@@ -18,11 +17,16 @@ class InnerPIDController:
             )
 
         self._pid.setpoint = actuator_setpoint_mm
-        pwm = round(self._pid(actuator_mm))
-        if pwm >= -2 and pwm <= 2:
+        raw = self._pid(actuator_mm)
+
+        if abs(raw) < 0.5:
             pwm = 0
-        elif pwm > 2:
-            pwm += self._deadband
         else:
-            pwm -= self._deadband
+            sign = 1 if raw > 0 else -1
+            magnitude = min(abs(raw), self._max_output)
+            pwm = sign * (
+                self._deadband + magnitude * (255 - self._deadband) / self._max_output
+            )
+
+        pwm = round(pwm)
         return f"U:{pwm}\n"
