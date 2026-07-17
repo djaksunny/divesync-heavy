@@ -97,9 +97,9 @@ try:
         current_setpoint = con.get_command(sta)
 
         # Phase 4: finalize processed record / csv
-        pro.process_actuator(current_setpoint, depth_setpoint, pro.actuator_setpoint_mm)
+        pro.process_actuator(current_setpoint, depth_setpoint)
 
-        ddp.update(pro.depth_filtered_m, depth_setpoint)
+        ddp.update(pro.depth_filtered_m, depth_setpoint, pro.actuator_setpoint_mm)
 
         log.write_raw(tel)
         log.write_processed(pro)
