@@ -97,7 +97,7 @@ try:
         current_setpoint = con.get_command(sta)
 
         # Phase 4: finalize processed record / csv
-        pro.process_actuator(current_setpoint, depth_setpoint)
+        pro.process_actuator(current_setpoint, depth_setpoint, pro.actuator_setpoint_mm)
 
         ddp.update(pro.depth_filtered_m, depth_setpoint)
 
@@ -106,7 +106,7 @@ try:
         log.write_state(sta)
 
         try:
-            cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm, pro.actuator_setpoint_mm)
+            cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm)
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
