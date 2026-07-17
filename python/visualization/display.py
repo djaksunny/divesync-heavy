@@ -10,6 +10,7 @@ FG_MUTED = "#5b6b7d"    # labels / captions
 FG_PRIMARY = "#e6edf3"  # main readout values
 ACCENT = "#3ba7ff"      # depth accent
 ACCENT_2 = "#8b5cf6"    # setpoint accent
+ACCENT_ACT = "#14b8a6"  # actuator accent (teal)
 OK = "#2ecc71"          # error small -> good
 WARN = "#f5b942"        # error medium -> caution
 BAD = "#ff5d5d"         # error large -> off target
@@ -53,7 +54,7 @@ class DepthDisplay:
         self.status_dot.pack(side="right", pady=2)
         self._dot_id = self.status_dot.create_oval(1, 1, 11, 11, fill=OK, outline="")
 
-        # ---- Body: three cards ----
+        # ---- Body: four cards ----
         body = tk.Frame(self.root, bg=BG)
         body.pack(padx=20, pady=(6, 20))
 
@@ -65,6 +66,9 @@ class DepthDisplay:
         )
         self.error_value = self._make_card(
             body, col=2, title="ERROR", unit="m", accent=FG_PRIMARY
+        )
+        self.actuator_value = self._make_card(
+            body, col=3, title="ACTUATOR", unit="mm", accent=ACCENT_ACT
         )
 
         self.root.protocol("WM_DELETE_WINDOW", self._close)
@@ -78,11 +82,7 @@ class DepthDisplay:
             return
         try:
             window.update_idletasks()
-            # Get the correct parent window handle (HWND) for the top-level Tk window
             hwnd = ctypes.windll.user32.GetParent(window.winfo_id())
-            
-            # DWMWA_USE_IMMERSIVE_DARK_MODE attribute ID
-            # 20 works for Windows 10 (20H1+) and Windows 11. 19 is for older Win10 builds.
             rendering_policy = ctypes.c_int(1)
             
             for attribute in (20, 19):
@@ -92,7 +92,6 @@ class DepthDisplay:
                 if result == 0:
                     break
         except Exception:
-            # Fallback cleanly if OS calls are unavailable
             pass
 
     def _make_card(self, parent, col, title, unit, accent):
@@ -130,16 +129,14 @@ class DepthDisplay:
         self.closed = True
         self.root.destroy()
 
-    def update(self, depth, setpoint):
+    def update(self, depth, setpoint, actuator_mm):
         if self.closed:
             return
 
         # process pending tkinter events
         self.root.update()
 
-        # the window may have been closed by the user during the
-        # update() call above (WM_DELETE_WINDOW fires from here) —
-        # bail out before touching any now-destroyed widgets
+        # check if closed during update
         if self.closed:
             return
 
@@ -148,6 +145,11 @@ class DepthDisplay:
 
         if setpoint is not None:
             self.setpoint_value.config(text=f"{setpoint:.3f}")
+            
+        if actuator_mm is not None:
+            self.actuator_value.config(text=f"{actuator_mm:.1f}")
+        else:
+            self.actuator_value.config(text="---")
 
         if depth is not None and setpoint is not None:
             error = setpoint - depth
@@ -183,6 +185,9 @@ if __name__ == "__main__":
     while not disp.closed:
         depth = 0.5 + 0.2 * math.sin(5 * t)
         setpoint = 0.5 + 0.2 * math.cos(2 * t)
-        disp.update(depth, setpoint)
+        # Mock actuator calculation moving with error dynamics
+        sim_actuator = 50.0 + (setpoint - depth) * 100.0
+        
+        disp.update(depth, setpoint, sim_actuator)
         time.sleep(0.05)
         t += 0.05
