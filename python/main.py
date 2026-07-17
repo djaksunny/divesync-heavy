@@ -106,7 +106,7 @@ try:
         log.write_state(sta)
 
         try:
-            cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm)
+            cmd = inn.get_command(pro.actuator_mm, pro.actuator_setpoint_mm, pro.actuator_setpoint_mm)
             ser.write_command(cmd)
         except Exception as e:
             print(f"[CONTROLLER ERROR] {e}")
