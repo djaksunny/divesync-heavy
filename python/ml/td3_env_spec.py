@@ -1,15 +1,15 @@
 import gymnasium as gym
 import numpy as np
 
+OBS_LOW = np.array([0.0, 0.0, -2.0, -0.5], dtype=np.float32)
+OBS_HIGH = np.array([2.0, 2.0, 2.0, 0.5], dtype=np.float32)
+
 
 class DiveSyncEnvSpec(gym.Env):
     def __init__(self, stroke):
         super().__init__()
 
-        obs_low = np.array([0.0, 0.0, -2.0, -0.5], dtype=np.float32)
-        obs_high = np.array([2.0, 2.0, 2.0, 0.5], dtype=np.float32)
-
-        self.observation_space = gym.spaces.Box(obs_low, obs_high, (4,), np.float32)
+        self.observation_space = gym.spaces.Box(OBS_LOW, OBS_HIGH, (4,), np.float32)
         self.action_space = gym.spaces.Box(
             np.array([0.0], dtype=np.float32),
             np.array([stroke], dtype=np.float32),

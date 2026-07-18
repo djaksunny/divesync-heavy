@@ -9,3 +9,7 @@ python/controllers/manual_runner.py
 python/visualization/sysid_overlay.py
 
 test_rl_dryrun.py
+
+# TD3 model/replay-buffer artifacts: regenerated every dive, large binaries
+python/ml/td3_model*.zip
+python/ml/td3_replay_buffer*
