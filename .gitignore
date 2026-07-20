@@ -1,6 +1,10 @@
 firmware/.pio/
 firmware/.vscode/
 
+eda/.history/
+eda/*-backups/
+*.kicad_prl
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,8 +14,8 @@ python/visualization/sysid_overlay.py
 
 test_rl_dryrun.py
 
-# TD3 model/replay-buffer artifacts: regenerated every dive, large binaries
-python/ml/td3_model*.zip
-python/ml/td3_replay_buffer*
-
-python/core/backfill_notes.py
+# TD3 model/replay-buffer backups and superseded artifacts (the live
+# td3_model.zip / td3_replay_buffer.pkl ARE tracked, for cross-machine training)
+python/ml/td3_model_*.zip
+python/ml/td3_replay_buffer.pkl.bak-*
+python/ml/td3_replay_buffer_*.pkl

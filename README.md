@@ -64,6 +64,7 @@ Two outer-loop control strategies were implemented and compared:
 ## Running an Experiment
 
 ```bash
+pip install -r requirements.txt
 python main.py
 ```
 
