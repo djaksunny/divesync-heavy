@@ -21,9 +21,9 @@ from visualization.display import DepthDisplay
 # Config
 BATTERY_CUTOFF_V      = 10.0
 ACTUATOR_STROKE       = 100.0
-ACTUATOR_EQUILIBRIUM  = 48.0
-DEPTH_LOW             = 0.2
-DEPTH_HIGH            = 0.7
+ACTUATOR_EQUILIBRIUM  = 50.2
+DEPTH_LOW             = 0.15
+DEPTH_HIGH            = 0.65
 
 # Setup
 exp = Experiment()
