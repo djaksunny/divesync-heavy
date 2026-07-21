@@ -13,6 +13,7 @@ Full schematics, PCB layout, and BOM are under `/eda`.
 
 ## Repository Structure
 
+```
 divesync-heavy/
 ├── data/                     # Raw experiment logs, one folder per run (YYYYMMDD-HHMMSS)
 ├── eda/                      # KiCad schematic, PCB, BOM, and exported schematic PDF
@@ -46,6 +47,7 @@ divesync-heavy/
 ├── main.py                    # Experiment entry point / main control loop
 ├── .gitignore
 └── README.md
+```
 
 ## Control Strategies
 
