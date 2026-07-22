@@ -15,7 +15,7 @@ Full schematics, PCB layout, and BOM are under `/eda`.
 
 ```
 divesync-heavy/
-├── data/                     # Raw experiment logs, one folder per run (YYYYMMDD-HHMMSS)
+├── data/                     # Raw experiment logs, grouped by hardware/software version -- see data/README.md
 ├── eda/                      # KiCad schematic, PCB, BOM, and exported schematic PDF
 ├── firmware/                 # ESP32 firmware (PlatformIO project)
 ├── python/
@@ -43,8 +43,10 @@ divesync-heavy/
 │       └── plotter.py         # Post-dive matplotlib plotting (depth/actuator/motor voltage)
 ├── results/
 │   ├── divesync-heavy-v1-results/   # Behavior cloning, cascaded PID, step response, sysid plots
-│   └── *.png                        # Comparison plots: BC, PID (fixed/variable), RL (fixed/variable)
+│   ├── divesync-heavy-v2-results/   # Behavior cloning, cascaded PID (fixed/variable), RL (fixed/variable)
+│   └── divesync-heavy-v3-results/   # Fully-online RL: early / failure / converged
 ├── main.py                    # Experiment entry point / main control loop
+├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
