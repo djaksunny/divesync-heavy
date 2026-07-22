@@ -140,11 +140,6 @@ if __name__ == "__main__":
 
     print("=== DIVESYNC HEAVY - DATA PLOTTING AND REPLAY INTERFACE ===\n")
 
-    print("Available experiments:\n")
-
-    # Gather available folders
-    folder_list = sorted([str(f) for f in data_dir.iterdir() if f.is_dir()])
-
     def get_notes(folder):
         metadata_path = Path(folder) / "metadata.json"
         if not metadata_path.exists():
@@ -156,36 +151,52 @@ if __name__ == "__main__":
         except (json.JSONDecodeError, OSError):
             return ""
 
-    # Display available choices in terminal
-    for idx, folder in enumerate(folder_list):
-        notes = get_notes(folder)
-        if notes:
-            print(f"[{idx}] {Path(folder).name} - {notes}")
-        else:
-            print(f"[{idx}] {Path(folder).name}")
-    print()
+    def choose_subfolder(folder):
+        """Prompt the user to pick a subfolder of `folder`, showing notes
+        where available. Returns the chosen Path."""
+        subfolders = sorted([f for f in folder.iterdir() if f.is_dir()])
+        if not subfolders:
+            return None
 
-    selected_folder_path = None
+        for idx, sub in enumerate(subfolders):
+            notes = get_notes(sub)
+            if notes:
+                print(f"[{idx}] {sub.name} - {notes}")
+            else:
+                print(f"[{idx}] {sub.name}")
+        print()
+
+        while True:
+            try:
+                idx = int(input("Select a folder (index): ").strip())
+                return subfolders[idx]
+            except ValueError:
+                print("Error: please enter a valid number\n")
+            except IndexError:
+                if len(subfolders) == 1:
+                    print("Error: enter 0")
+                else:
+                    print(f"Error: enter a number between 0 and {len(subfolders) - 1}\n")
+
+    print("Available experiments:\n")
+    current_folder = data_dir
 
     while True:
-        try:
-            if len(folder_list) == 0:
-                print("No folders available. Exiting plotter.\n")
-                selected_folder_path = None
-                sys.exit(0)
-                
-            folder_index = int(input("Select a folder (index): ").strip())
-            selected_folder_path = folder_list[folder_index]
+        chosen = choose_subfolder(current_folder)
+        if chosen is None:
+            print("No folders available. Exiting plotter.\n")
+            sys.exit(0)
+
+        if (chosen / "processed.csv").exists():
+            selected_folder_path = str(chosen)
             print(f"\nSelected folder path: {selected_folder_path}. Plotting...\n")
             break
-            
-        except ValueError:
-            print("Error: please enter a valid number\n")
-        except IndexError:
-            if len(folder_list) == 1:
-                print(f"Error: enter 0")
-            else:
-                print(f"Error: enter a number between 0 and {len(folder_list) - 1}\n")
+
+        # No processed.csv directly here (e.g. an archive folder like
+        # divesync-heavy-v3-data holding many past experiments) -- descend
+        # into it and show its contents instead of failing.
+        print(f"\n'{chosen.name}' has no processed.csv directly -- browsing its contents:\n")
+        current_folder = chosen
 
     # Replay execution
     try:
