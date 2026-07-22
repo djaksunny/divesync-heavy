@@ -17,7 +17,7 @@ class _RawState:
         self.velocity_mps = velocity_mps
 
 
-def relabel(buffer_path, w1=10.0, w2=20.0, w3=2.0, w4=5.0, tau=0.3):
+def relabel(buffer_path, w1=10.0, w2=150.0, w3=2.0, w4=5.0, tau=0.3):
     """Recompute every stored transition's reward under the current
     compute_reward(), using the raw state recovered from the buffer's
     normalized next_observations. Lets reward.py change without leaving
